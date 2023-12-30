@@ -405,7 +405,8 @@ module Lyricat
 	end
 
 	module StaticAPI
-		SESSION_TOKEN = CONFIG[:static_session_token].freeze
+		SESSION_TOKEN = ENV['LYRICAT_STATIC_SESSION_TOKEN'].freeze
+		raise 'LYRICAT_STATIC_SESSION_TOKEN not set' unless SESSION_TOKEN
 
 		module_function
 

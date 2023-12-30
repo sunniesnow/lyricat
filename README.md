@@ -9,9 +9,10 @@ Follow the steps.
 1. Clone this repo and run `bundle install`.
 2. Use [AssetRipper](https://github.com/AssetRipper/AssetRipper)
 to extract [Lyrica's APK](https://apkcombo.com/lyrica/com.Rnova.lyrica/download/apk).
-Specify the paths to useful files in `config.yml`.
-3. Register a test account in Lyrica.
-[Get its session token](#get-session-token) and put it in `config.yml`.
+Specify the paths to useful files in `config.yml`
+or copy the useful files to the paths specified in `config.yml`.
+3. Register a test account in Lyrica. [Get its session token](#get-session-token) and
+store it in the environment variable `LYRICAT_STATIC_SESSION_TOKEN`.
 4. Run `rackup -p 8013` to start the server.
 Change `8013` to the port you like.
 5. Optionally, set up reverse proxy and SSL etc.

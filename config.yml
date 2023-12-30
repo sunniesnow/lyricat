@@ -5,7 +5,6 @@ upstream:
   ssl: true
   base_url: /
 app_id: com.Rnova.lyrica
-static_session_token: r:changeme
 res:
   song_lib: res/sheet/SongLibSheet.asset
   language: res/sheet/LanguageSheet.asset
