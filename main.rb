@@ -23,6 +23,17 @@ module Lyricat
 	CONFIG = YAML.load_file(File.join(__dir__, 'config.yml'), symbolize_names: true).freeze
 	LANGS = %i[tw cn jp eng].freeze
 
+	def self.res symbol, *args
+		base_path = ENV['LYRICAT_RES_BASE_PATH'] || __dir__
+		path = File.expand_path sprintf(CONFIG[:res][symbol], *args), base_path
+		File.exist?(path) ? File.read(path) : nil
+	end
+
+	def self.sheet symbol
+		base_path = ENV['LYRICAT_RES_BASE_PATH'] || __dir__
+		YAML.load_file(File.expand_path(CONFIG[:res][symbol], base_path), symbolize_names: true)[:MonoBehaviour][:dataArray]
+	end
+
 	class Song
 		FIELDS = %i[song_id name singer writer diff label origin update_version year lyrics lyrics_b].freeze
 		DIFF_FORMATS = %i[in_game precise in_game_and_precise in_game_and_abbr_precise].freeze
@@ -91,13 +102,11 @@ module Lyricat
 		end
 
 		def lyrics
-			return unless File.exist? path = sprintf(File.expand_path(CONFIG[:res][:songlyrics], __dir__), @index)
-			File.read(path).gsub! "\r\n", ?\n
+			Lyricat.res(:songlyrics, @index)&.gsub! "\r\n", ?\n
 		end
 
 		def lyrics_b
-			return unless File.exist? path = sprintf(File.expand_path(CONFIG[:res][:songlyrics_b], __dir__), @index)
-			File.read(path).gsub! "\r\n", ?\n
+			Lyricat.res(:songlyrics_b, @index)&.gsub! "\r\n", ?\n
 		end
 
 		def diff lang = LANGS.first, format = :precise, name_format = :id
@@ -176,6 +185,7 @@ module Lyricat
 
 							mr = LIB[song_id].mr_by_score diff_id, score
 							mutex.synchronize { records[i] = [score, mr] }
+							p [i, song_id, diff_id, score, mr]
 							managing_queue.push i
 							threads.delete Thread.current
 						end
@@ -209,12 +219,12 @@ module Lyricat
 			end
 		end
 
-		LIB = YAML.load_file(File.expand_path(CONFIG[:res][:song_lib], __dir__), symbolize_names: true)[:MonoBehaviour][:dataArray].each_with_object [], &method(:add_song).freeze
+		LIB = Lyricat.sheet(:song_lib).each_with_object [], &method(:add_song).freeze
 		SORTED_OLD = get_sorted(&:old?).freeze
 		SORTED_NEW = get_sorted(&:new?).freeze
 		THREADS = 64
 
-		lang_sheet = YAML.load_file(File.expand_path(CONFIG[:res][:language], __dir__), symbolize_names: true)[:MonoBehaviour][:dataArray]
+		lang_sheet = Lyricat.sheet :language
 		begin item = lang_sheet.shift end until item[:index] == '#' && item[:tw] == 1
 		DIFFS_IN_GAME = ((1..10).map { |i| [i, lang_sheet[i-1]] } + (11..15).map { |i| [i, lang_sheet[i+43]] }).to_h.freeze
 		DIFFS_NAME = ((1..4).map { |i| [i, lang_sheet[i+9]] } + [[5, lang_sheet[53]]]).to_h.freeze

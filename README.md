@@ -11,6 +11,7 @@ Follow the steps.
 to extract [Lyrica's APK](https://apkcombo.com/lyrica/com.Rnova.lyrica/download/apk).
 Specify the paths to useful files in `config.yml`
 or copy the useful files to the paths specified in `config.yml`.
+You may set `LYRICAT_RES_BASE_PATH` to set the base path of the paths in `config.yml`.
 3. Register a test account in Lyrica. [Get its session token](#get-session-token) and
 store it in the environment variable `LYRICAT_STATIC_SESSION_TOKEN`.
 4. Run `rackup -p 8013` to start the server.
