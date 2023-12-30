@@ -285,3 +285,8 @@ Output sample:
 
 On Android, look at `/storage/emulated/0/Android/data/com.Rnova.lyrica/files/Parse.settings`.
 Or, on any devices, capture HTTP requests and look at the `X-Parse-Session-Token` header made towards `https://lyrica-main-2.herokuapp.com`.
+
+## License
+
+This is **not** free software.
+See LICENSE for details.
