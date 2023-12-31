@@ -211,7 +211,7 @@ module Lyricat
 					end
 				end
 				if DB.execute('select id from user where id=?', id).empty?
-					DB.execute 'insert into user values (?, ?, ?, ?)', id, session_token, (expiration.to_time.to_f*1000).round, LANGS.first
+					DB.execute 'insert into user values (?, ?, ?, ?)', id, session_token, (expiration.to_time.to_f*1000).round, LANGS.first.to_s
 				else
 					DB.execute 'update user set session_token=?, expiration=? where id=?', session_token, (expiration.to_time.to_f*1000).round, id
 				end

@@ -30,15 +30,25 @@ or copy the useful files to the paths specified in `config.yml`.
 ## Docker deploy
 
 1. Download `docker-compose.yml.example` and rename it to `docker-compose.yml`.
-2. Specify every required environment variables in `docker-compose.yml`.
-3. Use AssetRipper to extract Lyrica's APK, and put the useful files in the `res` dir
+2. Download `data/config.yml` and put it in the `data` dir
 (specified in the volume mapping in `docker-compose.yml`).
-4. Run `docker compose up -d`.
+3. Specify every required environment variables in `docker-compose.yml`.
+4. Use AssetRipper to extract Lyrica's APK, and put the useful files in the `res` dir
+(specified in the volume mapping in `docker-compose.yml`).
+5. Run `docker compose up -d`.
 
 If you want to build the image yourself,
 clone this repo and rename `docker-compose.yml.example` to `docker-compose.yml`.
 Change `image: ulysseszhan/lyricat:latest` to `build: .`.
 Run `docker compose build`.
+
+### Updating
+
+Simply run `docker compose pull`.
+
+### Migrate
+
+Simply copy over `data.db` in the `data` dir (specified in the volume mapping in `docker-compose.yml`).
 
 ## License
 
