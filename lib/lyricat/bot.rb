@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Lyricat
-	module Bot
+	class Bot < Discordrb::Commands::CommandBot
 
 		SESSION_TOKEN = ENV['LYRICAT_STATIC_SESSION_TOKEN'].freeze
 		raise 'LYRICAT_STATIC_SESSION_TOKEN not set' unless SESSION_TOKEN
@@ -33,39 +33,94 @@ module Lyricat
 			end
 		end
 
+		def command *args, **opts, &block
+			super *args, **opts do |event, *query|
+				typing_thread = Thread.new do
+					loop do
+						event.channel.start_typing
+						sleep 4
+					end
+				end
+				event.message.reply! block.(event, *query), mention_user: true
+				typing_thread.kill
+				nil
+			end
+		end
+
 		def gen_multilingual_commands name, aliases: [], **opts, &block
+			command name, aliases:, **opts do |event, *query|
+				id = event.user.id
+				lang = DB.get_first_value 'select lang from user where id=?', id
+				block.(lang&.to_sym || LANGS.first, *query)
+			end
 			LANGS.each do |lang|
 				a = [name, *aliases].map { [:"#{_1}#{lang}", :"#{_1}#{lang.to_s[..1]}"] }.flatten.uniq
 				command a[0], aliases: a[1..], **opts do |event, *query|
 					block.(lang, *query)
 				end
 			end
-			command name, aliases:, **opts do |event, *query|
-				id = event.user.id
-				lang = DB.get_first_value 'select lang from user where id=?', id
-				block.(lang&.to_sym || LANGS.first, *query)
-			end
 		end
 
 		def gen_multilingual_dynamic_commands name, aliases: [], **opts, &block
+			dynamic_command name, aliases:, **opts do |event, session_token, *query|
+				id = event.user.id
+				lang = DB.get_first_value 'select lang from user where id=?', id
+				block.(lang&.to_sym || LANGS.first, session_token, *query)
+			end
 			LANGS.each do |lang|
 				a = [name, *aliases].map { [:"#{_1}#{lang}", :"#{_1}#{lang.to_s[..1]}"] }.flatten.uniq
 				dynamic_command a[0], aliases: a[1..], **opts do |event, session_token, *query|
 					block.(lang, session_token, *query)
 				end
 			end
-			dynamic_command name, aliases:, **opts do |event, session_token, *query|
-				id = event.user.id
-				lang = DB.get_first_value 'select lang from user where id=?', id
-				block.(lang&.to_sym || LANGS.first, session_token, *query)
-			end
 		end
 
 		TOKEN = ENV['LYRICAT_DISCORD_TOKEN'].freeze
 		PREFIX = CONFIG[:prefix].freeze
-		BOT = Discordrb::Commands::CommandBot.new token: TOKEN, prefix: PREFIX
-		BOT.extend self
+		BOT = new token: TOKEN, prefix: PREFIX, help_command: false
 		BOT.instance_eval do
+
+			command :help, max_args: 1, description: 'Shows a list of all the commands available or displays help for a specific command.', usage: 'help [command name]' do |event, command_name|
+				if command_name
+					command = @commands[command_name.to_sym]
+					if command.is_a?(Discordrb::Commands::CommandAlias)
+						command = command.aliased_command
+						command_name = command.name
+					end
+					return "*Unknown command.*" unless command
+
+					desc = command.attributes[:description] || '*No description available.*'
+					usage = command.attributes[:usage]
+					parameters = command.attributes[:parameters]
+					result = "**`#{command_name}`**\t#{desc}"
+					aliases = command_aliases(command_name.to_sym)
+					unless aliases.empty?
+						result += "\n**Aliases**\t"
+						result += aliases.map { |a| "`#{a.name}`" }.join(', ')
+					end
+					result += "\n**Usage**\t`#{usage}`" if usage
+					if parameters
+						result += "\n**Accepted Parameters**\n```"
+						parameters.each { |p| result += "\n- #{p}" }
+						result += '```'
+					end
+					result
+				else
+					available_commands = @commands.values.reject do |c|
+						c.is_a?(Discordrb::Commands::CommandAlias) || !c.attributes[:help_available] || !required_roles?(event.user, c.attributes[:required_roles]) || !allowed_roles?(event.user, c.attributes[:allowed_roles]) || !required_permissions?(event.user, c.attributes[:required_permissions], event.channel)
+					end
+					case available_commands.length
+					when 0..5
+						available_commands.reduce "**List of commands**\n" do |memo, c|
+							memo + "**`#{c.name}`**: #{c.attributes[:description] || '*No description available*'}\n"
+						end
+					else
+						(available_commands.reduce "**List of commands**\n" do |memo, c|
+							memo + "`#{c.name}`, "
+						end)[0..-3]
+					end
+				end
+			end
 
 			ready do |event|
 				update_status 'online', "#{PREFIX}help", nil
@@ -92,6 +147,8 @@ module Lyricat
 						**How to get my session token?**
 						On Android, you can look at the file
 						`/storage/emulated/0/Android/data/com.Rnova.lyrica/files/Parse.settings`.
+						For the Chinese version of Lyrica, the file is
+						`/storage/emulated/0/Android/data/com.wexgames.ycbx/files/Parse.settings`
 						There is some text like `r:1234567890abcdef` in it.
 						It is the session token.
 						On iOS, there is no easy way to get your session token.
@@ -499,7 +556,7 @@ module Lyricat
 				You need to use `bind` to bind your session token before using this command.
 			DESC
 			usage = 'me'
-			dynamic_command :me, description:, usage:, max_args: 0 do |event, session_token|
+			dynamic_command :me, aliases: %i[user account], description:, usage:, max_args: 0 do |event, session_token|
 				user = HeavyLifting.get_user session_token
 				"**Username**\t#{user[:username]}\n**Created at**\t#{user[:created_at]}\n**Nickname**\t#{user[:nickname]}"
 			end
