@@ -1,3 +1,4 @@
 res
 .env
 data.db
+docker-compose.yml

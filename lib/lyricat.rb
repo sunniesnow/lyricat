@@ -12,6 +12,8 @@ require 'any_ascii'
 
 require 'patches'
 
+require 'lyricat/version'
+
 module Lyricat
 
 	DIFF = (1..5).map { [_1, %i[_ diffe diffn diffh diffm diffsp][_1]] }.to_h.freeze

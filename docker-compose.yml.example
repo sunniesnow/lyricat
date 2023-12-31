@@ -1,0 +1,16 @@
+---
+version: 3
+services:
+  app:
+    container_name: lyricat
+    image: ulysseszhan/lyricat:latest
+    # build: .
+    volumes:
+      - ./data:/data
+      - ./res:/res
+    environment:
+      LYRICAT_THREADS_COUNT: 64
+      LYRICAT_RETRY_COUNT: 3
+      LYRICAT_STATIC_SESSION_TOKEN: r:1234567890abcdef
+      LYRICAT_DISCORD_TOKEN: DISC0RD.B0T.T0KEN
+      LYRICAT_DISCORD_MAINTAINER_ID: 586808226058862623

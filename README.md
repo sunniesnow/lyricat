@@ -27,6 +27,17 @@ or copy the useful files to the paths specified in `config.yml`.
 | `LYRICAT_DISCORD_TOKEN` | (Required) The Discord bot token. |
 | `LYRICAT_DISCORD_MAINTAINER_ID` | The Discord user ID of the maintainer. |
 
+## Docker deploy
+
+Download `docker-compose.yml.example` and rename it to `docker-compose.yml`.
+Specify every required environment variables in `docker-compose.yml`.
+Run `docker compose up -d`.
+
+If you want to build the image yourself,
+clone this repo and rename `docker-compose.yml.example` to `docker-compose.yml`.
+Change `image: ulysseszhan/lyricat:latest` to `build: .`.
+Run `docker compose build`.
+
 ## License
 
 This is **not** free software.
