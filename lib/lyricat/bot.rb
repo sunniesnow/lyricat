@@ -8,7 +8,7 @@ module Lyricat
 
 		DB = SQLite3::Database.new File.join DATA_DIR, 'data.db'
 		if DB.execute('select name from sqlite_master where type="table" and name="user"').empty?
-			DB.execute 'create table user (id bigint primary key, session_token varchar(50), lang varchar(10), expiration bigint)'
+			DB.execute 'create table user (id bigint primary key, session_token varchar(50), expiration bigint, lang varchar(10))'
 		end
 		DB.type_translation = true
 
@@ -343,7 +343,9 @@ module Lyricat
 					score, nickname, rank = hash.values_at :score, :nickname, :rank
 					"#{rank}. #{nickname}\t#{score}"
 				end.join ?\n
-				"#{song.name lang}\t#{Song::DIFFS_NAME[diff_id][lang]}\n#{text}"
+				result = "#{song.name lang}\t#{Song::DIFFS_NAME[diff_id][lang]}\n#{text}"
+				result += 'No one is here...' if text.empty?
+				result
 			end
 
 			description = <<~DESC.gsub ?\n, ?\s
@@ -369,7 +371,9 @@ module Lyricat
 					score, nickname, rank = hash.values_at :score, :nickname, :rank
 					"#{rank}. #{nickname}\t#{score}"
 				end.join ?\n
-				"#{song.name lang}\t#{Song::DIFFS_NAME[diff_id][lang]}\n#{text}"
+				result = "#{song.name lang}\t#{Song::DIFFS_NAME[diff_id][lang]}\n#{text}"
+				result += 'No one is here...' if text.empty?
+				result
 			end
 
 			description = <<~DESC.gsub ?\n, ?\s
