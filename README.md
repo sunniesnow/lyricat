@@ -29,9 +29,11 @@ or copy the useful files to the paths specified in `config.yml`.
 
 ## Docker deploy
 
-Download `docker-compose.yml.example` and rename it to `docker-compose.yml`.
-Specify every required environment variables in `docker-compose.yml`.
-Run `docker compose up -d`.
+1. Download `docker-compose.yml.example` and rename it to `docker-compose.yml`.
+2. Specify every required environment variables in `docker-compose.yml`.
+3. Use AssetRipper to extract Lyrica's APK, and put the useful files in the `res` dir
+(specified in the volume mapping in `docker-compose.yml`).
+4. Run `docker compose up -d`.
 
 If you want to build the image yourself,
 clone this repo and rename `docker-compose.yml.example` to `docker-compose.yml`.
