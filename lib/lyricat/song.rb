@@ -15,6 +15,7 @@ module Lyricat
 			@year = hash[:addyear]
 			@label_id = hash[:labelid]
 			@name = {tw: hash[:songname], cn: hash[:songnamecn], jp: hash[:songnamejp], eng: hash[:songnameeng]}
+			@name.transform_values! { _1.split('|').last.gsub ?\n, ' '}
 			@singer = {tw: hash[:singer], cn: hash[:singercn], jp: hash[:singerjp], eng: hash[:singereng]}
 			@writer = {tw: hash[:songwriter], cn: hash[:songwritercn], jp: hash[:songwriterjp], eng: hash[:songwritereng]}
 			@origin = {tw: hash[:originallyrics], cn: hash[:originallyricscn], jp: hash[:originallyricsjp], eng: hash[:originallyricseng]}
