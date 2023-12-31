@@ -1,0 +1,15 @@
+---
+upstream:
+  domain: lyrica-main-2.herokuapp.com
+  port: 443
+  ssl: true
+  base_url: /
+app_id: com.Rnova.lyrica
+res:
+  song_lib: sheet/SongLibSheet.asset
+  language: sheet/LanguageSheet.asset
+  singer: sheet/SingerSheet.asset
+  songlyrics: songlyrics/SongLyrics%02d.txt
+  songlyrics_b: songlyrics/SongLyrics%02dB.txt
+prefix: '!'
+expiration_margin: 60000 # in ms

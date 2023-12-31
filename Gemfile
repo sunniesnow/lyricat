@@ -2,4 +2,9 @@
 
 source "https://rubygems.org"
 
-gem 'rackup'
+gem 'rake'
+
+gem 'concurrent-ruby'
+gem 'discordrb'
+gem 'sqlite3'
+gem 'any_ascii'
