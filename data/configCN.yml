@@ -1,15 +1,15 @@
 ---
 upstream:
-  host: lyrica-main-2.herokuapp.com
-  port: 443
-  ssl: true
+  host: 119.29.120.90
+  port: 1337
+  ssl: false
   base_url: /
-app_id: com.Rnova.lyrica
+app_id: com.wexgames.ycbx
 res:
-  song_lib: sheet/SongLibSheet.asset
+  song_lib: sheet/SongLibSheetCN.asset
   language: sheet/LanguageSheet.asset
   singer: sheet/SingerSheet.asset
   lyrics_info: sheet/LyricsInfoSheetCN.asset
   lyrics: sheet/LyricsSheetCN.asset
-prefix: '!'
+prefix: '?'
 expiration_margin: 60000 # in ms

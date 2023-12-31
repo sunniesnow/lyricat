@@ -11,7 +11,7 @@ module Lyricat
 		module_function
 
 		def make_net
-			net = Net::HTTP.new CONFIG[:upstream][:domain], CONFIG[:upstream][:port]
+			net = Net::HTTP.new CONFIG[:upstream][:host], CONFIG[:upstream][:port]
 			net.use_ssl = CONFIG[:upstream][:ssl]
 			net
 		end

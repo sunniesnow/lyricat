@@ -21,6 +21,7 @@ or copy the useful files to the paths specified in `config.yml`.
 |-|-|
 | `LYRICAT_DATA_DIR` | The dir containing database and config files. Defaults to `./data`. |
 | `LYRICAT_RES_DIR` | The dir containing resource files. The base dir of items in `res` in config. Defaults to `./res`. |
+| `LYRICAT_CONFIG` | The path to config file. Relative to `LYRICAT_DATA_DIR`. Defaults to `config.yml`. |
 | `LYRICAT_THREAD_COUNT` | The number of threads to use for parallel HTTP requests. |
 | `LYRICAT_RETRY_COUNT` | The number of retries when communicating with Lyrica's server. |
 | `LYRICAT_STATIC_SESSION_TOKEN` | (Required) The session token used to retrieve leaderboards. |

@@ -19,7 +19,7 @@ module Lyricat
 	DIFF = (1..5).map { [_1, %i[_ diffe diffn diffh diffm diffsp][_1]] }.to_h.freeze
 	DATA_DIR = ENV['LYRICAT_DATA_DIR'] || File.join(__dir__, '..', 'data')
 	RES_DIR = ENV['LYRICAT_RES_DIR'] || File.join(__dir__, '..', 'res')
-	CONFIG = YAML.load_file(File.join(DATA_DIR, 'config.yml'), symbolize_names: true).freeze
+	CONFIG = YAML.load_file(File.join(DATA_DIR, ENV['LYRICAT_CONFIG'] || 'config.yml'), symbolize_names: true).freeze
 	LANGS = %i[tw cn jp eng].freeze
 
 	def self.res symbol, *args
@@ -35,5 +35,6 @@ module Lyricat
 end
 
 require 'lyricat/heavylifting'
+require 'lyricat/singer'
 require 'lyricat/song'
 require 'lyricat/bot'

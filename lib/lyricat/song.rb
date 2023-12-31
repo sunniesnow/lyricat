@@ -2,7 +2,7 @@
 
 module Lyricat
 	class Song
-		FIELDS = %i[song_id name singer writer diff label origin update_version year lyrics lyrics_b].freeze
+		FIELDS = %i[song_id name singer writer diff label origin update_version year lyrics].freeze
 		DIFF_FORMATS = %i[in_game precise in_game_and_precise in_game_and_abbr_precise].freeze
 		DIFF_NAME_FORMATS = %i[id in_game field].freeze
 
@@ -24,6 +24,10 @@ module Lyricat
 				@diff[diff_id] = hash[diff_sym] if hash[diff_sym] >= 0
 			end
 			@ascii_name = @name.transform_values { AnyAscii.transliterate _1 }
+			@lyrics = (LYRICS[@index] || {}).then { { tw: _1[:lyrics], cn: _1[:lyricscn], jp: _1[:lyricsjp], eng: _1[:lyricseng] } }
+			@lyrics.transform_values! { _1&.gsub "\r\n", ?\n }
+			@lyrics_info = (LYRICS_INFO[@index] || {}).then { { tw: _1[:lyricsinfo], cn: _1[:lyricsinfocn], jp: _1[:lyricsinfojp], eng: _1[:lyricsinfoeng] } }
+			Singer::LIB[hash[:singerid]]&.songs&.push @index
 		end
 
 		def match_roman1 query, strong, lang = nil
@@ -93,12 +97,12 @@ module Lyricat
 			LABELS[@label_id][lang]
 		end
 
-		def lyrics
-			Lyricat.res(:songlyrics, @index)&.gsub! "\r\n", ?\n
+		def lyrics lang = LANGS.first
+			@lyrics[lang]
 		end
 
-		def lyrics_b
-			Lyricat.res(:songlyrics_b, @index)&.gsub! "\r\n", ?\n
+		def lyrics_info lang = LANGS.first
+			@lyrics_info[lang]
 		end
 
 		def diff lang = LANGS.first, format = :precise, name_format = :id
@@ -136,15 +140,15 @@ module Lyricat
 
 		def info_inspect lang = LANGS.first, diff_format = :in_game_and_abbr_precise, diff_name_format = :id
 			<<~EOF
-				**ID**\t #{song_id}
-				**Name**\t #{name lang}
-				**Singer**\t #{singer lang}
-				**Writer**\t #{writer(lang)&.gsub(?\n, ' / ')&.gsub('__', ' ')}
-				**Difficulties**\t #{diff(lang, diff_format, diff_name_format).values.join " / "}
-				**Label**\t #{label lang}
-				**Origin**\t #{origin(lang)&.gsub(?\n, ' ')}
-				**Update version**\t #{update_version}
-				**Year**\t #{year}
+				**ID**\t#{song_id}
+				**Name**\t#{name lang}
+				**Singer**\t#{singer lang}
+				**Writer**\t#{writer(lang)&.gsub(?\n, ' / ')&.gsub('__', ' ')}
+				**Difficulties**\t#{diff(lang, diff_format, diff_name_format).values.join " / "}
+				**Label**\t#{label lang}
+				**Origin**\t#{origin(lang)&.gsub(?\n, ' ')}
+				**Update version**\t#{update_version}
+				**Year**\t#{year}
 			EOF
 		end
 
@@ -154,6 +158,7 @@ module Lyricat
 			def add_song hash, lib
 				return unless hash[:index].is_a? Integer
 				return unless hash[:updateversion].is_a? String
+				return unless hash[:songname].is_a? String and hash[:songname].length > 0
 				song = Song.new hash
 				@max_version = [@max_version || 0, song.major].max
 				lib[song.index] = song
@@ -276,6 +281,8 @@ module Lyricat
 			end
 		end
 
+		LYRICS = Lyricat.sheet(:lyrics).each_with_object({}) { |hash, lib| lib[hash[:index]] = hash }.freeze
+		LYRICS_INFO = Lyricat.sheet(:lyrics_info).each_with_object({}) { |hash, lib| lib[hash[:index]] = hash }.freeze
 		LIB = Lyricat.sheet(:song_lib).each_with_object({}, &method(:add_song)).freeze
 		SORTED_OLD = get_sorted(&:old?).freeze
 		SORTED_NEW = get_sorted(&:new?).freeze

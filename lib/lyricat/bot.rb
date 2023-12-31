@@ -23,20 +23,20 @@ module Lyricat
 			command name, **opts do |event, *query|
 				id = event.user.id
 				session_token, expiration = DB.get_first_row 'select session_token, expiration from user where id=?', id
-				return 'Bind your session token first.' unless session_token
-				return 'Session token expired. Please rebind.' if expiration < Time.now.to_f * 1000 + EXPIRATION_MARGIN
+				return '*Bind your session token first.*' unless session_token
+				return '*Session token expired. Please rebind.*' if expiration < Time.now.to_f * 1000 + EXPIRATION_MARGIN
 				begin
 					block.(event, session_token, *query)
 				rescue HeavyLifting::BadUpstreamResponse
-					'Bad upstream response. Try binding a new session token?'
+					'*Bad upstream response. Try binding a new session token?*'
 				end
 			end
 		end
 
 		def gen_multilingual_commands name, aliases: [], **opts, &block
 			LANGS.each do |lang|
-				a = aliases.map { [:"#{_1}#{lang}", :"#{_1}#{lang.to_s[..1]}"] }.flatten.uniq
-				command :"#{name}#{lang}", aliases: a, **opts do |event, *query|
+				a = [name, *aliases].map { [:"#{_1}#{lang}", :"#{_1}#{lang.to_s[..1]}"] }.flatten.uniq
+				command a[0], aliases: a[1..], **opts do |event, *query|
 					block.(lang, *query)
 				end
 			end
@@ -49,8 +49,8 @@ module Lyricat
 
 		def gen_multilingual_dynamic_commands name, aliases: [], **opts, &block
 			LANGS.each do |lang|
-				a = aliases.map { [:"#{_1}#{lang}", :"#{_1}#{lang.to_s[..1]}"] }.flatten.uniq
-				dynamic_command :"#{name}#{lang}", aliases: a, **opts do |event, session_token, *query|
+				a = [name, *aliases].map { [:"#{_1}#{lang}", :"#{_1}#{lang.to_s[..1]}"] }.flatten.uniq
+				dynamic_command a[0], aliases: a[1..], **opts do |event, session_token, *query|
 					block.(lang, session_token, *query)
 				end
 			end
@@ -152,8 +152,21 @@ module Lyricat
 			usage = 'song[lang] [song ID or fuzzy search query]'
 			gen_multilingual_commands :song, description:, usage: do |lang, *query|
 				song_id = Song.fuzzy_search lang, query.join(' ')
-				return 'Not found.' unless song_id
+				return '*Not found.*' unless song_id
 				Song::LIB[song_id].info_inspect lang
+			end
+
+			description = <<~DESC.gsub ?\n, ?\s
+				Display basic information about a singer.
+				Can specify the singer by singer ID or fuzzy search using singer name.
+				Append `singer` with one of `tw`, `cn`, `jp`, `eng` (such as `singercn`)
+				to specify the language.
+			DESC
+			usage = 'singer[lang] [singer ID or fuzzy search query]'
+			gen_multilingual_commands :singer, description:, usage: do |lang, *query|
+				singer_id = Singer.fuzzy_search lang, query.join(' ')
+				return '*Not found.*' unless singer_id
+				Singer::LIB[singer_id].info_inspect lang
 			end
 
 			description = <<~DESC.gsub ?\n, ?\s
@@ -190,7 +203,7 @@ module Lyricat
 					max = query[1].to_f + 0.1
 				end
 				song_id = Song.random min, max
-				return 'Not found.' unless song_id
+				return '*Not found.*' unless song_id
 				Song::LIB[song_id].info_inspect lang
 			end
 
@@ -209,9 +222,9 @@ module Lyricat
 					expiration = HeavyLifting.get_expiration_date session_token
 				rescue HeavyLifting::BadUpstreamResponse
 					if event.message.server
-						return 'Bad session token. The original message is deleted for privacy reasons. Remember to bind in DM.'
+						return '*Bad session token. The original message is deleted for privacy reasons. Remember to bind in DM.*'
 					else
-						return 'Bad session token.'
+						return '*Bad session token.*'
 					end
 				end
 				if DB.execute('select id from user where id=?', id).empty?
@@ -220,9 +233,9 @@ module Lyricat
 					DB.execute 'update user set session_token=?, expiration=? where id=?', session_token, (expiration.to_time.to_f*1000).round, id
 				end
 				if event.message.server
-					'Success! The original message is deleted for privacy reasons. Remember to bind in DM next time.'
+					'*Success! The original message is deleted for privacy reasons. Remember to bind in DM next time.*'
 				else
-					'Success!'
+					'*Success!*'
 				end
 			end
 
@@ -269,7 +282,9 @@ module Lyricat
 			DESC
 			usage = 'b35[lang]'
 			gen_multilingual_dynamic_commands :b35, description:, usage:, max_args: 0 do |lang, session_token|
-				b35(lang, session_token).map { |line| line.join ?\t }.join ?\n
+				result = b35(lang, session_token).map { |line| line.join ?\t }.join ?\n
+				result = 'Nothing here...' if result.empty?
+				result
 			end
 
 			description = <<~DESC.gsub ?\n, ?\s
@@ -280,7 +295,9 @@ module Lyricat
 			DESC
 			usage = 'b15[lang]'
 			gen_multilingual_dynamic_commands :b15, description:, usage:, max_args: 0 do |lang, session_token|
-				b15(lang, session_token).map { |line| line.join ?\t }.join ?\n
+				result = b15(lang, session_token).map { |line| line.join ?\t }.join ?\n
+				result = 'Nothing here...' if result.empty?
+				result
 			end
 
 			description = <<~DESC.gsub ?\n, ?\s
@@ -293,7 +310,9 @@ module Lyricat
 			gen_multilingual_dynamic_commands :b50, description:, usage:, max_args: 0 do |lang, session_token|
 				b35 = b35(lang, session_token).map { |line| line.join ?\t }.join ?\n
 				b15 = b15(lang, session_token).map { |line| line.join ?\t }.join ?\n
-				b35 + "\n\n" + b15
+				result = [b35, b15].delte_if?(&:empty?).join "\n\n"
+				result = 'Nothing here...' if result.empty?
+				result
 			end
 
 			description = <<~DESC.gsub ?\n, ?\s
@@ -317,9 +336,9 @@ module Lyricat
 					<<~HEREDOC
 						**MR**\t#{mr}
 						**b35**\t(#{(b35.sum { _1.last } / 50).round 8})
-						#{b35.map { |line| line.join ?\t }.join ?\n}
+						#{(b35.map { |line| line.join ?\t }.join ?\n).then { _1.empty? ? 'Nothing here...' : _1 }}
 						**b15**\t(#{(b15.sum { _1.last } / 50).round 8})
-						#{b15.map { |line| line.join ?\t }.join ?\n}
+						#{(b15.map { |line| line.join ?\t }.join ?\n).then { _1.empty? ? 'Nothing here...' : _1 }}
 					HEREDOC
 				end
 			end
@@ -333,22 +352,22 @@ module Lyricat
 			DESC
 			usage = 'leaderboard[lang] [song ID] [difficulty ID]'
 			gen_multilingual_commands :leaderboard, aliases: %i[lb], description:, usage:, min_args: 2, max_args: 2 do |lang, song_id, diff_id|
-				return 'Bad song ID or difficulty ID.' unless song_id.like_int? && diff_id.like_int?
+				return '*Bad song ID or difficulty ID.*' unless song_id.like_int? && diff_id.like_int?
 				song_id = song_id.to_i
 				diff_id = diff_id.to_i
 				song = Song::LIB[song_id]
-				return 'No such chart.' unless song&.diff[diff_id]
+				return '*No such chart.*' unless song&.diff[diff_id]
 				begin
 					leaderboard = HeavyLifting.get_leaderboard SESSION_TOKEN, song_id, diff_id
 				rescue HeavyLifting::BadUpstreamResponse
-					return "There is a problem in retrieving the leaderboard. Please contact <@#{MAINTAINER_ID}>."
+					return "*There is a problem in retrieving the leaderboard. Please contact <@#{MAINTAINER_ID}>.*"
 				end
 				text = leaderboard.map do |hash|
 					score, nickname, rank = hash.values_at :score, :nickname, :rank
 					"#{rank}. #{nickname}\t#{score}"
 				end.join ?\n
 				result = "#{song.name lang}\t#{Song::DIFFS_NAME[diff_id][lang]}\n#{text}"
-				result += 'No one is here...' if text.empty?
+				result += '*No one is here...*' if text.empty?
 				result
 			end
 
@@ -361,22 +380,22 @@ module Lyricat
 			DESC
 			usage = 'monthleaderboard[lang] [song ID] [difficulty ID]'
 			gen_multilingual_commands :monthleaderboard, aliases: %i[mlb], description:, usage:, min_args: 2, max_args: 2 do |lang, song_id, diff_id|
-				return 'Bad song ID or difficulty ID.' unless song_id.like_int? && diff_id.like_int?
+				return '*Bad song ID or difficulty ID.*' unless song_id.like_int? && diff_id.like_int?
 				song_id = song_id.to_i
 				diff_id = diff_id.to_i
 				song = Song::LIB[song_id]
-				return 'No such chart.' unless song&.diff[diff_id]
+				return '*No such chart.*' unless song&.diff[diff_id]
 				begin
 					leaderboard = HeavyLifting.get_month_leaderboard SESSION_TOKEN, song_id, diff_id
 				rescue HeavyLifting::BadUpstreamResponse
-					return "There is a problem in retrieving the leaderboard. Please contact <@#{MAINTAINER_ID}>."
+					return "*There is a problem in retrieving the leaderboard. Please contact <@#{MAINTAINER_ID}>.*"
 				end
 				text = leaderboard.map do |hash|
 					score, nickname, rank = hash.values_at :score, :nickname, :rank
 					"#{rank}. #{nickname}\t#{score}"
 				end.join ?\n
 				result = "#{song.name lang}\t#{Song::DIFFS_NAME[diff_id][lang]}\n#{text}"
-				result += 'No one is here...' if text.empty?
+				result += '*No one is here...*' if text.empty?
 				result
 			end
 
@@ -389,10 +408,10 @@ module Lyricat
 			DESC
 			usage = 'score[lang] [song ID]'
 			gen_multilingual_dynamic_commands :score, aliases: %i[rank], description:, usage:, min_args: 1, max_args: 1 do |lang, session_token, song_id|
-				return 'Bad song ID.' unless song_id.like_int?
+				return '*Bad song ID.*' unless song_id.like_int?
 				song_id = song_id.to_i
 				song = Song::LIB[song_id]
-				return 'No such song.' unless song
+				return '*No such song.*' unless song
 				result = song.name(lang) + ?\n
 				scores = Concurrent::Hash.new
 				ranks = Concurrent::Hash.new
@@ -419,10 +438,10 @@ module Lyricat
 			DESC
 			usage = 'monthscore[lang] [song ID]'
 			gen_multilingual_dynamic_commands :monthscore, aliases: %i[monthrank mscore mrank], description:, usage:, min_args: 1, max_args: 1 do |lang, session_token, song_id|
-				return 'Bad song ID.' unless song_id.like_int?
+				return '*Bad song ID.*' unless song_id.like_int?
 				song_id = song_id.to_i
 				song = Song::LIB[song_id]
-				return 'No such song.' unless song
+				return '*No such song.*' unless song
 				result = song.name(lang) + ?\n
 				scores = Concurrent::Hash.new
 				ranks = Concurrent::Hash.new
@@ -443,16 +462,46 @@ module Lyricat
 			description = <<~DESC.gsub ?\n, ?\s
 				Display the lyrics of a song.
 				Does not support fuzzy search.
+				Append `lyrics` with one of `tw`, `cn`, `jp`, `eng` (such as `lyricscn`)
+				to specify the language.
 			DESC
-			usage = 'lyrics [song ID]'
-			command :lyrics, description:, usage: do |event, song_id|
-				return 'Bad song ID.' unless song_id.like_int?
+			usage = 'lyrics[lang] [song ID]'
+			gen_multilingual_commands :lyrics, description:, usage: do |lang, song_id|
+				return '*Bad song ID.*' unless song_id.like_int?
 				song_id = song_id.to_i
 				song = Song::LIB[song_id]
-				return 'No such song.' unless song
-				result = [song.lyrics, song.lyrics_b].compact.join "\n\n"
-				result = 'No lyrics.' if result.empty?
+				return '*No such song.*' unless song
+				result = song.lyrics lang
+				result = '*No lyrics.*' if !result || result.empty?
 				result
+			end
+
+			description = <<~DESC.gsub ?\n, ?\s
+				Display analysis of a song.
+				Does not support fuzzy search.
+				Append `analysis` with one of `tw`, `cn`, `jp`, `eng` (such as `analysiscn`)
+				to specify the language.
+			DESC
+			usage = 'anal[lang] [song ID]'
+			gen_multilingual_commands :anal, aliases: %i[analysis lyricsinfo], description:, usage: do |lang, song_id|
+				return '*Bad song ID.*' unless song_id.like_int?
+				song_id = song_id.to_i
+				song = Song::LIB[song_id]
+				return '*No such song.*' unless song
+				result = song.lyrics_info lang
+				result = '*No analysis.*' if !result || result.empty?
+				result
+			end
+
+			description = <<~DESC.gsub ?\n, ?\s
+				Display user info,
+				including username, creation time, and nickname.
+				You need to use `bind` to bind your session token before using this command.
+			DESC
+			usage = 'me'
+			dynamic_command :me, description:, usage:, max_args: 0 do |event, session_token|
+				user = HeavyLifting.get_user session_token
+				"**Username**\t#{user[:username]}\n**Created at**\t#{user[:created_at]}\n**Nickname**\t#{user[:nickname]}"
 			end
 
 		end
