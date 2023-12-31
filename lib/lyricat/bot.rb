@@ -67,6 +67,10 @@ module Lyricat
 		BOT.extend self
 		BOT.instance_eval do
 
+			ready do |event|
+				update_status 'online', "#{PREFIX}help", nil
+			end
+
 			description = <<~DESC.gsub ?\n, ?\s
 				Display some useful info.
 				Available items: `st`: what is and how to get session token;
