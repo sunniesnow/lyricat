@@ -9,7 +9,7 @@ res:
   song_lib: sheet/SongLibSheet.asset
   language: sheet/LanguageSheet.asset
   singer: sheet/SingerSheet.asset
-  lyrics_info: sheet/LyricsInfoSheetCN.asset
-  lyrics: sheet/LyricsSheetCN.asset
+  lyrics_info: sheet/LyricsInfoSheet.asset
+  lyrics: sheet/LyricsSheet.asset
 prefix: '!'
 expiration_margin: 60000 # in ms
