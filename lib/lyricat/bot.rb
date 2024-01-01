@@ -304,20 +304,35 @@ module Lyricat
 			end
 
 			description = <<~DESC.gsub ?\n, ?\s
+				Unbind your session token.
+				Your session token will be deleted from the database of the bot.
+				You will have to bind your session token again to use the commands that require it.
+			DESC
+			usage = 'unbind'
+			command :unbind, description:, usage:, max_args: 0 do |event|
+				id = event.user.id
+				return '*You have not bound your session token yet.*' unless DB.get_first_value 'select session_token from user where id=?', id
+				unless DB.execute('select id from user where id=?', id).empty?
+					DB.execute 'update user set session_token=NULL, expiration=NULL where id=?', id
+				end
+				'*Success!*'
+			end
+
+			description = <<~DESC.gsub ?\n, ?\s
 				Set the default language for the results of your commands.
 				One of `tw`, `cn`, `jp`, or `eng`.
 			DESC
 			usage = 'lang [tw|cn|jp|eng]'
 			command :lang, description:, usage:, min_args: 1, max_args: 1 do |event, lang|
 				lang = 'eng' if lang == 'en'
-				return 'Unknown language.' unless LANGS.include? lang.to_sym
+				return '*Unknown language.*' unless LANGS.include? lang.to_sym
 				id = event.user.id
 				if DB.execute('select id from user where id=?', id).empty?
 					DB.execute 'insert into user values (?, ?, ?, ?)', id, nil, nil, lang
 				else
 					DB.execute 'update user set lang=? where id=?', lang, id
 				end
-				'Success!'
+				'*Success!*'
 			end
 
 			def b35 lang, session_token
@@ -572,6 +587,7 @@ module Lyricat
 				Display basic information about a dan.
 				The dan ID ranges from 1 to 18.
 				Including the levels, hit points, healing, and hit-by judgement.
+				For an introduction to the Dan system and Dan rules, use `info dan`.
 				Append `dan` with one of `tw`, `cn`, `jp`, `eng` (such as `dancn`)
 				to specify the language.
 			DESC
