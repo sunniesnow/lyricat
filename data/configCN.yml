@@ -13,3 +13,4 @@ res:
   lyrics: sheet/LyricsSheetCN.asset
 prefix: '?'
 expiration_margin: 60000 # in ms
+max_typing_time: 30 # in s

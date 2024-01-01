@@ -16,6 +16,8 @@ module Lyricat
 			BOT.run
 		end
 
+		MAX_TYPING_TIME = CONFIG[:max_typing_time] || 30
+
 		EXPIRATION_MARGIN = CONFIG[:expiration_margin]
 		MAINTAINER_ID = ENV['LYRICAT_DISCORD_MAINTAINER_ID'] || 0
 
@@ -36,7 +38,7 @@ module Lyricat
 		def command *args, **opts, &block
 			super *args, **opts do |event, *query|
 				typing_thread = Thread.new do
-					loop do
+					(MAX_TYPING_TIME / 4).floor.times do
 						event.channel.start_typing
 						sleep 4
 					end
@@ -167,11 +169,17 @@ module Lyricat
 						Use the command `help bind` to see how to use it.
 					INFO
 					mr: <<~INFO,
-						月韵 (MR) 是 5.0 版本引入的用于衡量玩家水平的一个数。
-						总 MR 的计算方式如下:
-						- 计算所有谱面的单谱 MR, 并对每首歌曲的各难度谱面 (除 Frog Rappa 稀世以外) 的单谱 MR 取最大的一个作为该歌曲的单谱 MR。
-						- 对所有 5.0 前的歌曲中单谱 MR 最高的 35 个 (旧 b35), 以及 5.0后的歌曲中单谱 MR 的最高的 15 个 (新 b15), 取平均值获得总 MR。
-						单谱 MR 的计算公式:
+						**Calculation of MR**
+						Calculate the single-chart MR for each chart, \
+						and then for each song, among all its charts (accept Frog Rappa Special), \
+						pick the one with the highest single-chart MR as the single-song MR of the song. \
+						Among songs before 5.0, pick 35 ones (called **b35**) \
+						with the highest single-song MRs. \
+						Among songs after 5.0, pick 15 ones (called **b15**) \
+						with the highest single-song MRs. \
+						Then, the average single-song MRs of all the 50 songs (called **b50**) \
+						is the total MR of the player.
+						The calculation of the single-chart MR is as follows:
 						```
 						S' = S / 10000
 						M = {
@@ -179,23 +187,22 @@ module Lyricat
 							max(0, d+1 - (98-S')/4), if 50 <= S' <= 98;
 							d+2 - (100-S')/2, if S' >= 98
 						}
-						```
-						其中S为分数，d为单谱定数
+						```where `S` is the score, and `d` is the difficulty.
 					INFO
 					dan: <<~INFO,
-						阳春白雪/阳春艺曲晋升之路(非官方)规则如下：
-						1. 血量上限即为初始血量，挑战过程中任何时刻血量归0即为挑战失败。
-						2. 扣血标准指每出现一个指定判定或以下则血量-1。
-						3. 回复血量指当前晋升之路挑战中每通过一首歌所回复的血量(最后一首不回复)。
-						4. 挑战关卡时，需要连续通过指定的四首歌曲，中间不能重试。若所挑战关卡有两组歌曲，则任选其一通过即算通过该关卡。
-						5. 在结束四首晋升之路挑战歌曲之后算出(残余血量/血量上限x100%)得出的值与通过方式表进行对比，得出当前挑战的官位(例：41血完成拾肆段，血量残余82%，则为紫袍拾肆通过)。
-						以下是通过方式：
-						- 黄袍 x=100%
-						- 紫袍 100%>x≥80%
-						- 红袍 80%>x≥55%
-						- 绿袍 55%>x≥30%
-						- 青袍 30%>x>0%
-						- 布衣(失败) x≤0%
+						**Dan rules**
+						Challenge fails if HP reaches 0 during the challenge. \
+						The HP reduces by 1 when one judgement that is or is below the hit-by judgement apppears. \
+						The HP heals at the end of each level within the dan course (except the last one). \
+						You need to pass four songs in a row without retrying to pass a dan course. \
+						If there are two sets of songs in a dan course, you can choose either one to pass. \
+						Calculate the ratio `x` of the remaining HP to the initial HP, and compare it with the following table to get your dan rank:
+						- Yellow: `x = 100%`;
+						- Purple: `100% > x >= 80%`;
+						- Red: `80% > x >= 55%`;
+						- Green: `55% > x >= 30%`;
+						- Blue: `30% > x > 0%`;
+						- White (fail): `x <= 0%`.
 					INFO
 				}[item.to_sym] || 'Unknown item.'
 			end
@@ -559,6 +566,22 @@ module Lyricat
 			dynamic_command :me, aliases: %i[user account], description:, usage:, max_args: 0 do |event, session_token|
 				user = HeavyLifting.get_user session_token
 				"**Username**\t#{user[:username]}\n**Created at**\t#{user[:created_at]}\n**Nickname**\t#{user[:nickname]}"
+			end
+
+			description = <<~DESC.gsub ?\n, ?\s
+				Display basic information about a dan.
+				The dan ID ranges from 1 to 18.
+				Including the levels, hit points, healing, and hit-by judgement.
+				Append `dan` with one of `tw`, `cn`, `jp`, `eng` (such as `dancn`)
+				to specify the language.
+			DESC
+			usage = 'dan[lang] [dan ID]'
+			gen_multilingual_commands :dan, description:, usage:, min_args: 1, max_args: 1 do |lang, dan_id|
+				return '*Bad dan ID.*' unless dan_id.like_int?
+				dan_id = dan_id.to_i
+				dan = Dan::LIB[dan_id]
+				return '*No such dan.*' unless dan
+				dan.info_inspect lang
 			end
 
 		end

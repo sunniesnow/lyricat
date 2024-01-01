@@ -1,0 +1,339 @@
+---
+- index: 1
+  levels:
+    - - song_id: 6 # 饮茶
+        diff_id: 4
+      - song_id: 91 # 鸟鸣涧
+        diff_id: 4
+      - song_id: 34 # 月夜
+        diff_id: 4
+      - song_id: 104 # VUVU
+        diff_id: 3
+    - - song_id: 36 # 离离
+        diff_id: 4
+      - song_id: 29 # 绣阁里
+        diff_id: 4
+      - song_id: 44 # 乌衣巷
+        diff_id: 4
+      - song_id: 87 # 嫁衣
+        diff_id: 3
+  health: 50
+  heal: 20
+  judgement: 3
+- index: 2
+  levels:
+    - - song_id: 4 # 清平调
+        diff_id: 4
+      - song_id: 66 # 玉楼春 交响
+        diff_id: 3
+      - song_id: 84 # 唐多令
+        diff_id: 3
+      - song_id: 102 # 颂赞日
+        diff_id: 3
+    - - song_id: 39 # 偶成冬夜
+        diff_id: 4
+      - song_id: 67 # 木兰 交响
+        diff_id: 3
+      - song_id: 162 # 秋殇
+        diff_id: 3
+      - song_id: 111 # Matane
+        diff_id: 3
+  health: 40
+  heal: 15
+  judgement: 3
+- index: 3
+  levels:
+    - - song_id: 58 # 东城
+        diff_id: 4
+      - song_id: 48 # 户惑
+        diff_id: 4
+      - song_id: 13 # 马上回家
+        diff_id: 4
+      - song_id: 76 # 烟锁秦楼
+        diff_id: 3
+    - - song_id: 151 # 酒中仙
+        diff_id: 3
+      - song_id: 20 # 思念
+        diff_id: 4
+      - song_id: 60 # 寂寞达达
+        diff_id: 4
+      - song_id: 79 # 伤瘾
+        diff_id: 3
+  health: 30
+  heal: 10
+  judgement: 3
+- index: 4
+  levels:
+    - - song_id: 171 # 听风听雨
+        diff_id: 4
+      - song_id: 51 # 待
+        diff_id: 4
+      - song_id: 88 # 花开花落
+        diff_id: 4
+      - song_id: 37 # 新劝学文
+        diff_id: 3
+    - - song_id: 152 # 莲城诀
+        diff_id: 4
+      - song_id: 170 # 君问归期
+        diff_id: 4
+      - song_id: 38 # 为你一直继续
+        diff_id: 4
+      - song_id: 30 # 白日梦
+        diff_id: 3
+  health: 20
+  heal: 5
+  judgement: 3
+- index: 5
+  levels:
+    - - song_id: 1 # 玉楼春
+        diff_id: 4
+      - song_id: 95 # 八阵赋
+        diff_id: 3
+      - song_id: 52 # 柳永
+        diff_id: 4
+      - song_id: 31 # 那茶那塔
+        diff_id: 4
+    - - song_id: 85 # 大酺春雨
+        diff_id: 4
+      - song_id: 137 # 长相思
+        diff_id: 3
+      - song_id: 90 # 锦瑟
+        diff_id: 4
+      - song_id: 35 # 定风波
+        diff_id: 4
+  health: 10
+  heal: 0
+  judgement: 3
+- index: 6
+  levels:
+    - - song_id: 112 # Prism
+        diff_id: 3
+      - song_id: 55 # 战神卸甲
+        diff_id: 4
+      - song_id: 160 # 谷底绽放
+        diff_id: 4
+      - song_id: 0 # 还记得他曾说
+        diff_id: 4
+    - - song_id: 167 # 登楼之顶
+        diff_id: 3
+      - song_id: 43 # 宿醉
+        diff_id: 4
+      - song_id: 105 # 月满西楼
+        diff_id: 4
+      - song_id: 33 # 静水山幽
+        diff_id: 4
+  health: 50
+  heal: 20
+  judgement: 2
+- index: 7
+  levels:
+    - - song_id: 10 # 出关
+        diff_id: 4
+      - song_id: 7 # 木兰
+        diff_id: 4
+      - song_id: 153 # Ailurophile
+        diff_id: 3
+      - song_id: 49 # 一坨日文终
+        diff_id: 4
+    - - song_id: 56 # 满江红
+        diff_id: 3
+      - song_id: 16 # 江城子
+        diff_id: 4
+      - song_id: 180 # Holic My Way
+        diff_id: 4
+      - song_id: 32 # 淇奧
+        diff_id: 4
+  health: 40
+  heal: 15
+  judgement: 2
+- index: 8
+  levels:
+    - - song_id: 62 # 月相思
+        diff_id: 4
+      - song_id: 96 # 三国一梦
+        diff_id: 3
+      - song_id: 42 # 将进酒
+        diff_id: 4
+      - song_id: 14 # 上邪
+        diff_id: 4
+    - - song_id: 151 # 酒中仙
+        diff_id: 4
+      - song_id: 64 # 情钟
+        diff_id: 4
+      - song_id: 135 # 闲适
+        diff_id: 4
+      - song_id: 108 # Chronosis Song
+        diff_id: 4
+  health: 30
+  heal: 10
+  judgement: 2
+- index: 9
+  levels:
+    - - song_id: 167 # 登楼之顶
+        diff_id: 4
+      - song_id: 161 # 灼灼人间色
+        diff_id: 4
+      - song_id: 143 # 心际之旅
+        diff_id: 4
+      - song_id: 40 # 荒芜中的路
+        diff_id: 4
+    - - song_id: 117 # Maximum
+        diff_id: 3
+      - song_id: 185 # 天仙子
+        diff_id: 4
+      - song_id: 104 # VUVU
+        diff_id: 4
+      - song_id: 63 # 郎君梦
+        diff_id: 4
+  health: 20
+  heal: 5
+  judgement: 2
+- index: 10
+  levels:
+    - - song_id: 94 # 三分天下计
+        diff_id: 3
+      - song_id: 57 # 闺怨
+        diff_id: 4
+      - song_id: 145 # 和昨日说再见
+        diff_id: 4
+      - song_id: 99 # 拿么美好
+        diff_id: 4
+    - - song_id: 18 # 莲想
+        diff_id: 4
+      - song_id: 136 # 失眠
+        diff_id: 4
+      - song_id: 137 # 长相思
+        diff_id: 4
+      - song_id: 87 # 嫁衣
+        diff_id: 4
+  health: 10
+  heal: 0
+  judgement: 2
+- index: 11
+  levels:
+    - - song_id: 130 # 八十始得归
+        diff_id: 4
+      - song_id: 166 # 陋室铭
+        diff_id: 4
+      - song_id: 30 # 白日梦
+        diff_id: 4
+      - song_id: 107 # Apocalypse
+        diff_id: 4
+    - - song_id: 127 # 离度
+        diff_id: 4
+      - song_id: 114 # Tokyo Snorkel
+        diff_id: 4
+      - song_id: 191 # nannde
+        diff_id: 4
+      - song_id: 67 # 木兰 交响
+        diff_id: 4
+  health: 70
+  heal: 20
+  judgement: 1
+- index: 12
+  levels:
+    - - song_id: 50 # 30mm
+        diff_id: 4
+      - song_id: 32 # 淇奥
+        diff_id: 5
+      - song_id: 173 # 大道之行
+        diff_id: 4
+      - song_id: 121 # Lasting Wonderworld
+        diff_id: 4
+    - - song_id: 163 # 仲谋
+        diff_id: 4
+      - song_id: 113 # Raise
+        diff_id: 4
+      - song_id: 101 # 一起一起
+        diff_id: 4
+      - song_id: 81 # 一剪梅
+        diff_id: 4
+  health: 60
+  heal: 15
+  judgement: 1
+- index: 13
+  levels:
+    - - song_id: 162 # 秋殇
+        diff_id: 4
+      - song_id: 205 # Psyched Fevereiro
+        diff_id: 4
+      - song_id: 197 # Desetr0yer
+        diff_id: 4
+      - song_id: 204 # Chartreuse Green
+        diff_id: 4
+    - - song_id: 112 # Prism
+        diff_id: 4
+      - song_id: 155 # Eudoraa
+        diff_id: 4
+      - song_id: 195 # Flying Springtime
+        diff_id: 4
+      - song_id: 109 # Glamorous Girl
+        diff_id: 4
+  health: 55
+  heal: 10
+  judgement: 1
+- index: 14
+  levels:
+    - - song_id: 153 # Ailurophile
+        diff_id: 4
+      - song_id: 206 # Mountain Eater
+        diff_id: 4
+      - song_id: 93 # 长坂行
+        diff_id: 4
+      - song_id: 109 # Glamorous Girl
+        diff_id: 5
+  health: 50
+  heal: 5
+  judgement: 1
+- index: 15
+  levels:
+    - - song_id: 56 # 满江红
+        diff_id: 4
+      - song_id: 154 # Arrhythmia
+        diff_id: 4
+      - song_id: 194 # Fell My Happiness
+        diff_id: 4
+      - song_id: 114 # Tokyo Snorkel
+        diff_id: 5
+  health: 45
+  heal: 0
+  judgement: 1
+- index: 16
+  levels:
+    - - song_id: 118 # As!anTech
+        diff_id: 4
+      - song_id: 50 # 30mm
+        diff_id: 5
+      - song_id: 84 # 唐多令
+        diff_id: 5
+      - song_id: 157 # 一堆日文 feat.Yaki
+        diff_id: 5
+  health: 40
+  heal: 0
+  judgement: 1
+- index: 17
+  levels:
+    - - song_id: 94 # 三分天下计
+        diff_id: 4
+      - song_id: 193 # conflict
+        diff_id: 5
+      - song_id: 192 # 竹
+        diff_id: 4
+      - song_id: 82 # 买花
+        diff_id: 5
+  health: 35
+  heal: 0
+  judgement: 1
+- index: 18
+  levels:
+    - - song_id: 116 # Hex
+        diff_id: 4
+      - song_id: 117 # Max
+        diff_id: 4
+      - song_id: 115 # Butterfly Dance
+        diff_id: 5
+      - song_id: 121 # Lasting Wonderworld
+        diff_id: 5
+  health: 30
+  heal: 0
+  judgement: 1

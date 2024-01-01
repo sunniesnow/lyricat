@@ -37,4 +37,5 @@ end
 require 'lyricat/heavylifting'
 require 'lyricat/singer'
 require 'lyricat/song'
+require 'lyricat/dan'
 require 'lyricat/bot'
