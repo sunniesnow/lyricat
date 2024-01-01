@@ -22,8 +22,9 @@ or copy the useful files to the paths specified in `config.yml`.
 | `LYRICAT_DATA_DIR` | The dir containing database and config files. Defaults to `./data`. |
 | `LYRICAT_RES_DIR` | The dir containing resource files. The base dir of items in `res` in config. Defaults to `./res`. |
 | `LYRICAT_CONFIG` | The path to config file. Relative to `LYRICAT_DATA_DIR`. Defaults to `config.yml`. |
-| `LYRICAT_THREAD_COUNT` | The number of threads to use for parallel HTTP requests. |
-| `LYRICAT_RETRY_COUNT` | The number of retries when communicating with Lyrica's server. |
+| `LYRICAT_DAN` | The path to the file specifying dan courses. Relative to `LYRICAT_DATA_DIR`. Defaults to `dan.yml`. |
+| `LYRICAT_THREAD_COUNT` | The number of threads to use for parallel HTTP requests. Defaults to 8. |
+| `LYRICAT_RETRY_COUNT` | The number of retries when communicating with Lyrica's server. Defaults to 3. |
 | `LYRICAT_STATIC_SESSION_TOKEN` | (Required) The session token used to retrieve leaderboards. |
 | `LYRICAT_DISCORD_TOKEN` | (Required) The Discord bot token. |
 | `LYRICAT_DISCORD_MAINTAINER_ID` | The Discord user ID of the maintainer. |
@@ -45,9 +46,9 @@ Run `docker compose build`.
 
 ### Updating
 
-Simply run `docker compose pull`.
+Simply run `docker compose pull && docker compose up -d`.
 
-### Migrate
+### Migrating
 
 Simply copy over `data.db` in the `data` dir (specified in the volume mapping in `docker-compose.yml`).
 
