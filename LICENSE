@@ -1,6 +1,9 @@
 The Software is NOT free software.
 The provided source codes are for reference only.
-Any form of redistribution of the Software is prohibited.
+Any form of redistribution of the Software
+(publishing as a package on any repo of any package manager,
+publishing as a docker image, etc.)
+is prohibited unless authorized by the author of the Software.
 Maintaining a modified fork of the Software is prohibited
 unless the source codes of the fork are publicly available
 and the fork intends to be merged into the Software
