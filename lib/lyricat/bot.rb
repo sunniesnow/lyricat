@@ -463,7 +463,7 @@ module Lyricat
 			gen_multilingual_dynamic_commands :b50, description:, usage:, max_args: 0 do |event, lang, session_token|
 				b35 = b35(lang, session_token).map { |line| line.join ?\t }.join ?\n
 				b15 = b15(lang, session_token).map { |line| line.join ?\t }.join ?\n
-				result = [b35, b15].delte_if?(&:empty?).join "\n\n"
+				result = [b35, b15].delete_if?(&:empty?).join "\n\n"
 				result = 'Nothing here...' if result.empty?
 				result
 			end
