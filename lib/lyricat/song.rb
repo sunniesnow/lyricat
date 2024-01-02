@@ -34,7 +34,9 @@ module Lyricat
 			query = query.gsub(/\s/, '').downcase
 			meth = strong ? :== : :include?
 			values = lang ? [@ascii_name[lang]] : @ascii_name.values
-			values.any? { |roman| roman.gsub(/\s/, '').downcase.__send__ meth, query }
+			return true if values.any? { |roman| roman.gsub(/\s/, '').downcase.__send__ meth, query }
+			return true if values.any? { |roman| roman.gsub(/[^\w]/, '').downcase.__send__ meth, query }
+			false
 		end
 
 		def match_roman2 query, strong, lang = nil
@@ -43,6 +45,7 @@ module Lyricat
 			values = lang ? [@ascii_name[lang]] : @ascii_name.values
 			return true if values.any? { |roman| roman.upper_letters.__send__ meth, query }
 			return true if values.any? { |roman| (words = roman.split).length > 1 && words.map { _1[0] }.join.downcase.__send__(meth, query) }
+			return true if values.any? { |roman| (words = roman.split /[^\w]/).length > 1 && words.map { _1[0] }.join.downcase.__send__(meth, query) }
 			false
 		end
 
@@ -50,7 +53,9 @@ module Lyricat
 			query = query.strip.downcase
 			meth = strong ? :== : :include?
 			values = lang ? [@name[lang]] : @name.values
-			values.any? { _1.strip.__send__ meth, query }
+			return true if values.any? { _1.strip.__send__ meth, query }
+			return true if values.any? { _1.gsub(/[^\w]/, '').__send__ meth, query }
+			false
 		end
 
 		def major
