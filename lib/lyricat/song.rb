@@ -273,13 +273,15 @@ module Lyricat
 				end
 				get_forms = ->original do
 					ascii = AnyAscii.transliterate original
-					abbr0 = original.upper_letters
+					abbr0 = ascii.upper_letters
 					abbr0 = nil if abbr0.length <= 1
 					abbr1 = original.split.map { _1[0] }.join
 					abbr1 = nil if abbr1.length <= 1
 					abbr2 = original.split(/[^\w]/).map { _1[0] }.join
 					abbr2 = nil if abbr2.length <= 1
-					[original, ascii, abbr0, abbr1, abbr2].compact
+					abbr3 = original.upper_letters
+					abbr3 = nil if abbr3.length <= 1
+					[original, ascii, abbr0, abbr1, abbr2, abbr3].compact
 				end
 				query_forms = get_forms.(query)
 				if query =~ /^(.*?)(\d+)$/
