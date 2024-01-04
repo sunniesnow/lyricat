@@ -273,7 +273,8 @@ module Lyricat
 				For specifying the difficulty, you can use one of the following:
 				(1) A single integer `n`, which means the difficulty is in `[n,n+1)`;
 				(2) A single number with decimal point `n`, which means the difficulty is exactly `n`;
-				(3) Two numbers `n` and `m`, which means the difficulty is in `[n,m]`.
+				(3) Two numbers `n` and `m`, which means the difficulty is in `[n,m]`
+				(or `[n,m+0.9]` if `m` does not have decimal point).
 				Append `rand` with one of `tw`, `cn`, `jp`, `eng` (such as `randcn`)
 				to specify the language.
 			DESC
@@ -663,8 +664,9 @@ module Lyricat
 				For specifying the difficulty, you can use one of the following:
 				(1) A single integer `n`, which means the difficulty is in `[n,n+1)`;
 				(2) A single number with decimal point `n`, which means the difficulty is exactly `n`;
-				(3) Two numbers `n` and `m`, which means the difficulty is in `[n,m]`.
-				Append `listsongs` with one of `tw`, `cn`, `jp`, `eng` (such as `scorecn`)
+				(3) Two numbers `n` and `m`, which means the difficulty is in `[n,m]`
+				(or `[n,m+0.9]` if `m` does not have decimal point).
+				Append `listsongs` with one of `tw`, `cn`, `jp`, `eng` (such as `listsongscn`)
 				to specify the language.
 			DESC
 			usage = 'listsongs[lang] [difficulty]'
