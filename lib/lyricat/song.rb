@@ -114,20 +114,14 @@ module Lyricat
 			@diff.map do |diff_id, diff|
 				key = case name_format
 				when :id then diff_id
-				when :in_game then DIFFS_NAME[diff_id][lang]
+				when :in_game then Song.diff_name_in_game diff_id, lang
 				when :field then DIFF[diff_id]
 				end
 				value = case format
 				when :precise then diff
 				when :in_game then DIFFS_IN_GAME[diff_id][lang]
-				when :in_game_and_precise
-					in_game = DIFFS_IN_GAME[diff.to_i][lang]
-					in_game += DIFF_PLUS[lang] if diff % 1 > 0.5
-					"#{in_game} (#{diff})"
-				when :in_game_and_abbr_precise
-					in_game = DIFFS_IN_GAME[diff.to_i][lang]
-					in_game += DIFF_PLUS[lang] if diff % 1 > 0.5
-					"#{in_game}(.#{(diff % 1 * 10).round})"
+				when :in_game_and_precise then Song.diff_in_game_and_precise diff, lang
+				when :in_game_and_abbr_precise then Song.diff_in_game_and_abbr_precise diff, lang
 				end
 				[key, value]
 			end.to_h
@@ -159,6 +153,22 @@ module Lyricat
 
 		class << self
 			attr_accessor :max_version
+
+			def diff_in_game_and_abbr_precise diff, lang = LANGS.first
+				in_game = DIFFS_IN_GAME[diff.to_i][lang]
+				in_game += DIFF_PLUS[lang] if diff % 1 > 0.5
+				"#{in_game}(.#{(diff % 1 * 10).round})"
+			end
+
+			def diff_in_game_and_precise diff, lang = LANGS.first
+				in_game = DIFFS_IN_GAME[diff.to_i][lang]
+				in_game += DIFF_PLUS[lang] if diff % 1 > 0.5
+				"#{in_game} (#{diff})"
+			end
+
+			def diff_name_in_game diff_id, lang = LANGS.first
+				DIFFS_NAME[diff_id][lang]
+			end
 
 			def add_song hash, lib
 				return unless hash[:index].is_a? Integer
@@ -281,8 +291,30 @@ module Lyricat
 				nil
 			end
 
-			def random min, max
-				LIB.filter { |_, song| song.diff.values.any? { |d| d >= min && d < max } }.keys.sample
+			def parse_difficulty_query *query
+				min, max = query
+				max ||= min || '14'
+				min ||= '1'
+				min = min.like_int? ? min.to_i : min.like_float? ? min.to_f : (return [])
+				max = max.like_int? ? max.to_i : max.like_float? ? max.to_f : (return [])
+				min, max = max, min if min > max
+				max += max.is_a?(Integer) ? 1 : 0.1
+				[min, max]
+			end
+
+			def select_songs_by_difficulty_query *query
+				min, max = parse_difficulty_query *query
+				return nil unless min && max
+				LIB.filter { |_, song| song.diff.values.any? { |d| d >= min && d < max } }.keys
+			end
+
+			def select_charts_by_difficulty diff, &block
+				return to_enum :select_charts_by_difficulty, diff unless block
+				LIB.each_with_object [] do |(song_id, song), result|
+					song.diff.each do |diff_id, diff_value|
+						block.(song_id, diff_id) if diff_value == diff
+					end
+				end
 			end
 		end
 

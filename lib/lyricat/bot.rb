@@ -66,15 +66,18 @@ module Lyricat
 						sleep 4
 					end
 				end
-				text = block.(event, *query)
-				if event.channel.load_message event.message.id
-					event.message.reply! text, mention_user: true
-				else
-					deliminator = text.include?(?\n) ? ?\n : ?\s
-					result = "<@#{event.user.id}>#{deliminator}#{text}"
-				end
+				try_reply event.message, block.(event, *query)
 				typing_thread.kill
-				result
+				nil
+			end
+		end
+
+		def try_reply message, text
+			if message.channel.load_message message.id
+				message.reply! text, mention_user: true
+			else
+				deliminator = text.include?(?\n) ? ?\n : ?\s
+				message.respond "<@#{message.user.id}>#{deliminator}#{text}"
 			end
 		end
 
@@ -139,7 +142,7 @@ module Lyricat
 				else
 					available_commands = @commands.values.reject do |c|
 						c.is_a?(Discordrb::Commands::CommandAlias) || !c.attributes[:help_available] || !required_roles?(event.user, c.attributes[:required_roles]) || !allowed_roles?(event.user, c.attributes[:allowed_roles]) || !required_permissions?(event.user, c.attributes[:required_permissions], event.channel)
-					end
+					end.sort_by &:name
 					case available_commands.length
 					when 0..5
 						available_commands.reduce "**List of commands**\n" do |memo, c|
@@ -276,28 +279,9 @@ module Lyricat
 			DESC
 			usage = 'rand[lang] [difficulty]'
 			gen_multilingual_commands :rand, aliases: %i[random], description:, usage:, max_args: 2 do |event, lang, *query|
-				case query.size
-				when 0
-					min = 0
-					max = Float::INFINITY
-				when 1
-					if query[0].like_int?
-						min = query[0].to_i
-						max = min + 1
-					elsif query[0].like_float?
-						min = query[0].to_f
-						max = query[0].to_f + 0.1
-					else
-						next 'Invalid difficulty.'
-					end
-				when 2
-					if query.any? { !_1.like_float? && !_1.like_int? }
-						next 'Invalid difficulty.'
-					end
-					min = query[0].to_f
-					max = query[1].to_f + 0.1
-				end
-				song_id = Song.random min, max
+				songs_id = Song.select_songs_by_difficulty_query *query
+				next '*Invalid difficulty.*' unless songs_id
+				song_id = songs_id.sample
 				next '*Not found.*' unless song_id
 				Song::LIB[song_id].info_inspect lang
 			end
@@ -414,7 +398,7 @@ module Lyricat
 					song_id, diff_id, score, mr = hash.values_at :song_id, :diff_id, :score, :mr
 					song = Song::LIB[song_id]
 					diff = song.diff[diff_id]
-					["#{i+1}. #{song.name lang}", "#{Song::DIFFS_NAME[diff_id][lang]} #{song.diff(lang, :in_game_and_abbr_precise, :id)[diff_id]}", score, mr]
+					["#{i+1}. #{song.name lang}", "#{Song.diff_name_in_game diff_id, lang} #{song.diff(lang, :in_game_and_abbr_precise, :id)[diff_id]}", score, mr]
 				end
 			end
 
@@ -423,7 +407,7 @@ module Lyricat
 					song_id, diff_id, score, mr = hash.values_at :song_id, :diff_id, :score, :mr
 					song = Song::LIB[song_id]
 					diff = song.diff[diff_id]
-					["#{i+1}. #{song.name lang}", "#{Song::DIFFS_NAME[diff_id][lang]} #{song.diff(lang, :in_game_and_abbr_precise, :id)[diff_id]}", score, mr]
+					["#{i+1}. #{song.name lang}", "#{Song.diff_name_in_game diff_id, lang} #{song.diff(lang, :in_game_and_abbr_precise, :id)[diff_id]}", score, mr]
 				end
 			end
 
@@ -519,7 +503,7 @@ module Lyricat
 					score, nickname, rank = hash.values_at :score, :nickname, :rank
 					"#{rank}. #{nickname}\t#{score}"
 				end.join ?\n
-				result = "#{song.name lang}\t#{Song::DIFFS_NAME[diff_id][lang]}\n#{text}"
+				result = "#{song.name lang}\t#{Song.diff_name_in_game diff_id, lang}\n#{text}"
 				result += '*No one is here...*' if text.empty?
 				result
 			end
@@ -547,7 +531,7 @@ module Lyricat
 					score, nickname, rank = hash.values_at :score, :nickname, :rank
 					"#{rank}. #{nickname}\t#{score}"
 				end.join ?\n
-				result = "#{song.name lang}\t#{Song::DIFFS_NAME[diff_id][lang]}\n#{text}"
+				result = "#{song.name lang}\t#{Song.diff_name_in_game diff_id, lang}\n#{text}"
 				result += '*No one is here...*' if text.empty?
 				result
 			end
@@ -577,7 +561,7 @@ module Lyricat
 					end.tap { _1.abort_on_exception = true }
 				end.each &:join
 				song.diff(lang, :in_game_and_abbr_precise).each do |diff_id, diff|
-					result += "- #{Song::DIFFS_NAME[diff_id][lang]} #{diff}\t#{scores[diff_id]}\t#{ranks[diff_id]}\n"
+					result += "- #{Song.diff_name_in_game diff_id, lang} #{diff}\t#{scores[diff_id]}\t#{ranks[diff_id]}\n"
 				end
 				result[...-1]
 			end
@@ -607,7 +591,7 @@ module Lyricat
 					end.tap { _1.abort_on_exception = true }
 				end.each &:join
 				song.diff(lang, :in_game_and_abbr_precise).each do |diff_id, diff|
-					result += "- #{Song::DIFFS_NAME[diff_id][lang]} #{diff}\t#{scores[diff_id]}\t#{ranks[diff_id]}\n"
+					result += "- #{Song.diff_name_in_game diff_id, lang} #{diff}\t#{scores[diff_id]}\t#{ranks[diff_id]}\n"
 				end
 				result[...-1]
 			end
@@ -674,6 +658,43 @@ module Lyricat
 				dan.info_inspect lang
 			end
 
+			description = <<~DESC.gsub ?\n, ?\s
+				Display a list of songs according to the difficulties.
+				For specifying the difficulty, you can use one of the following:
+				(1) A single integer `n`, which means the difficulty is in `[n,n+1)`;
+				(2) A single number with decimal point `n`, which means the difficulty is exactly `n`;
+				(3) Two numbers `n` and `m`, which means the difficulty is in `[n,m]`.
+				Append `listsongs` with one of `tw`, `cn`, `jp`, `eng` (such as `scorecn`)
+				to specify the language.
+			DESC
+			usage = 'listsongs[lang] [difficulty]'
+			gen_multilingual_commands :listsongs, aliases: %i[ls lsong listsong rt], description:, usage:, max_args: 2 do |event, lang, *query|
+				min, max = Song.parse_difficulty_query *query
+				next '*Invalid difficulty.*' unless min && max
+				link = event.message.link
+				pm = false
+				r = (min...max).step(0.1).reverse_each.with_object String.new do |diff, result|
+					middle_result = Song.select_charts_by_difficulty(diff).with_object String.new do |(song_id, diff_id), s|
+						song = Song::LIB[song_id]
+						s.concat "- #{song.name lang}\t#{Song.diff_name_in_game diff_id, lang}\n"
+					end
+					unless middle_result.empty?
+						middle_result = "**#{Song.diff_in_game_and_abbr_precise diff, lang}**\n" + middle_result
+						if result.length + middle_result.length + link.length + 1 > 2000
+							if event.channel.pm?
+								try_reply event.message, result
+							else
+								pm = true
+								event.user.pm "#{link}\n#{result}"
+							end
+							result.replace middle_result
+						else
+							result.concat middle_result
+						end
+					end
+				end
+				r.empty? ? '*Not found.*' : pm ? event.user.pm("#{link}\n#{r}") && '*Sent to your DM.*' : r
+			end
 		end
 
 	end
