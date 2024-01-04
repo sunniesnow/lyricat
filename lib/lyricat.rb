@@ -9,6 +9,7 @@ require 'discordrb'
 require 'sqlite3'
 require 'concurrent'
 require 'any_ascii'
+require 'ropencc'
 
 require 'patches'
 

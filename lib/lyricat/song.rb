@@ -263,30 +263,43 @@ module Lyricat
 				end.filter { _1[:mr] > 0 }
 			end
 
-			def fuzzy_search lang, query
+			def fuzzy_search lang, query, excluded = []
 				if query.like_int?
 					id = query.to_i
 					return id if LIB[id]
 				end
+				if from_alias = ALIASES[query]
+					return from_alias
+				end
+				get_forms = ->original do
+					ascii = AnyAscii.transliterate original
+					abbr0 = original.upper_letters
+					abbr0 = nil if abbr0.length <= 1
+					abbr1 = original.split.map { _1[0] }.join
+					abbr1 = nil if abbr1.length <= 1
+					abbr2 = original.split(/[^\w]/).map { _1[0] }.join
+					abbr2 = nil if abbr2.length <= 1
+					[original, ascii, abbr0, abbr1, abbr2].compact
+				end
+				query_forms = get_forms.(query)
+				if query =~ /^(.*?)(\d+)$/
+					n = $2.to_i
+					alter_forms = get_forms.($1) if n > 1
+					searched = Set.new
+				end
+				filtered_lib = LIB.reject { excluded.include? _2.song_id }
 				[lang, nil].each do |l|
-					if o = LIB.find { _2.match_name query, true, l }
-						return o[0]
+					match = ->meth, strong = false do
+						filtered_lib.find do |song_id, song|
+							next true if query_forms.any? { song.__send__ meth, _1, strong, l }
+							if alter_forms&.any? { song.__send__ meth, _1, strong, l }
+								searched.add song_id
+								next true if n == searched.size
+							end
+						end&.first
 					end
-					if o = LIB.find { _2.match_roman1 query, true, l }
-						return o[0]
-					end
-					if o = LIB.find { _2.match_roman2 query, true, l }
-						return o[0]
-					end
-					if o = LIB.find { _2.match_roman1 query, false, l }
-						return o[0]
-					end
-					if o = LIB.find { _2.match_roman2 query, false, l }
-						return o[0]
-					end
-					if o = LIB.find { _2.match_name query, false, l }
-						return o[0]
-					end
+					o = match.(:match_name, true) || match.(:match_roman1, true) || match.(:match_roman2, true) || match.(:match_roman1) || match.(:match_roman2) || match.(:match_name)
+					return o if o
 				end
 				nil
 			end
@@ -342,6 +355,10 @@ module Lyricat
 			labels[index].delete :index
 			negative
 		end.freeze
+
+		ALIASES = YAML.load_file(File.join Lyricat::DATA_DIR, ENV['LYRICAT_ALIASES'] || 'aliases.yml')['songs']
+		ALIASES.merge! ALIASES.transform_keys { Ropencc.conv 's2t', _1 }
+		ALIASES.freeze
 	end
 
 end

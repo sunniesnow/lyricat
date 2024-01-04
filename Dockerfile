@@ -5,7 +5,7 @@ COPY . .
 
 RUN apt-get -y update
 RUN apt-get -y upgrade
-RUN apt-get install -y sqlite3 libsqlite3-dev
+RUN apt-get install -y sqlite3 libsqlite3-dev opencc libopencc-dev
 
 RUN bundle install
 
