@@ -205,12 +205,12 @@ module Lyricat
 						Calculate the single-chart MR for each chart, \
 						and then for each song, among all its charts (accept Frog Rappa Special), \
 						pick the one with the highest single-chart MR as the single-song MR of the song. \
-						Among songs before 5.0, pick 35 ones (called **b35**) \
+						Among songs before 5.0, pick (at most) 35 ones (called **b35**) \
 						with the highest single-song MRs. \
-						Among songs after 5.0, pick 15 ones (called **b15**) \
+						Among songs after 5.0, pick (at most) 15 ones (called **b15**) \
 						with the highest single-song MRs. \
-						Then, the average single-song MRs of all the 50 songs (called **b50**) \
-						is the total MR of the player.
+						Then, the sum of the single-song MRs of all the (at most) 50 songs \
+						(called **b50**) divided by 50 is the total MR of the player.
 						The calculation of the single-chart MR is as follows:
 						```
 						S' = S / 10000
