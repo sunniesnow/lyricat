@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     any_ascii (0.3.2)
-    concurrent-ruby (1.2.2)
+    concurrent-ruby (1.2.3)
     discordrb (3.5.0)
       discordrb-webhooks (~> 3.5.0)
       ffi (>= 1.9.24)
@@ -11,7 +11,7 @@ GEM
       websocket-client-simple (>= 0.3.0)
     discordrb-webhooks (3.5.0)
       rest-client (>= 2.0.0)
-    domain_name (0.6.20231109)
+    domain_name (0.6.20240107)
     event_emitter (0.2.6)
     ffi (1.16.3)
     http-accept (1.7.0)
@@ -31,7 +31,7 @@ GEM
       netrc (~> 0.8)
     ropencc (0.0.6)
       ffi (~> 1.0)
-    sqlite3 (1.7.0-x86_64-linux)
+    sqlite3 (1.7.2-x86_64-linux)
     websocket (1.2.10)
     websocket-client-simple (0.8.0)
       event_emitter
@@ -49,4 +49,4 @@ DEPENDENCIES
   sqlite3
 
 BUNDLED WITH
-   2.5.3
+   2.5.4
