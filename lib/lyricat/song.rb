@@ -120,8 +120,8 @@ module Lyricat
 				value = case format
 				when :precise then diff
 				when :in_game then DIFFS_IN_GAME[diff_id][lang]
-				when :in_game_and_precise then Song.diff_in_game_and_precise diff, lang
-				when :in_game_and_abbr_precise then Song.diff_in_game_and_abbr_precise diff, lang
+				when :in_game_and_precise then Song.diff_in_game_and_precise diff, lang, special: diff_id == 5
+				when :in_game_and_abbr_precise then Song.diff_in_game_and_abbr_precise diff, lang, special: diff_id == 5
 				end
 				[key, value]
 			end.to_h
@@ -154,14 +154,14 @@ module Lyricat
 		class << self
 			attr_accessor :max_version
 
-			def diff_in_game_and_abbr_precise diff, lang = LANGS.first
-				in_game = DIFFS_IN_GAME[diff.to_i][lang]
+			def diff_in_game_and_abbr_precise diff, lang = LANGS.first, special: false
+				in_game = (special ? DIFFS_SP_IN_GAME : DIFFS_IN_GAME)[diff.to_i][lang]
 				in_game += DIFF_PLUS[lang] if diff % 1 > 0.5
 				"#{in_game}(.#{(diff % 1 * 10).round})"
 			end
 
-			def diff_in_game_and_precise diff, lang = LANGS.first
-				in_game = DIFFS_IN_GAME[diff.to_i][lang]
+			def diff_in_game_and_precise diff, lang = LANGS.first, special: false
+				in_game = (special ? DIFFS_SP_IN_GAME : DIFFS_IN_GAME)[diff.to_i][lang]
 				in_game += DIFF_PLUS[lang] if diff % 1 > 0.5
 				"#{in_game} (#{diff})"
 			end
@@ -211,7 +211,7 @@ module Lyricat
 								puts "Timeout when querying #{i}, #{song_id}, #{diff_id}"
 								score = 0
 							end
-							
+
 							mr = LIB[song_id].mr_by_score diff_id, score
 							records[i] = [score, mr]
 							p [i, song_id, diff_id, score, mr]
@@ -342,11 +342,19 @@ module Lyricat
 
 		lang_sheet = Lyricat.sheet :language
 		begin item = lang_sheet.shift end until item[:index] == '#' && item[:tw] == 1
-		DIFFS_IN_GAME = ((1..10).map { |i| [i, lang_sheet[i-1].transform_values(&:to_s)] } + (11..15).map { |i| [i, lang_sheet[i+43].transform_values(&:to_s)] }).to_h.freeze
-		DIFFS_NAME = ((1..4).map { |i| [i, lang_sheet[i+9]] } + [[5, lang_sheet[53]]]).to_h.freeze
-		DIFF_PLUS = lang_sheet[59].tap { _1.delete :index }.freeze
+		DIFFS_IN_GAME = (
+			(1..10).map { |i| [i, lang_sheet[i-1].transform_values(&:to_s)] } +
+			(11..15).map { |i| [i, lang_sheet[i+43].transform_values(&:to_s)] }
+		).to_h.freeze
 		DIFFS_IN_GAME.each_value { _1.delete :index }
+		DIFF_PLUS = lang_sheet[59].tap { _1.delete :index }.freeze
+		DIFFS_NAME = ((1..4).map { |i| [i, lang_sheet[i+9]] } + [[5, lang_sheet[53]]]).to_h.freeze
 		DIFFS_NAME.each_value { _1.delete :index }
+
+		dIFFS_SP_IN_GAME = (
+			(1..10).map { |i| [i, lang_sheet[i-1].transform_values(&:to_s)] } +
+			(11..14).map { |i| [i, lang_sheet[i+43].transform_values(&:to_s)] }
+		)
 
 		begin item = lang_sheet.shift end until item[:index] == '#' && item[:tw] == 9
 		LABELS = lang_sheet.each_with_object({}).reduce false do |negative, (item, labels)|
@@ -357,6 +365,13 @@ module Lyricat
 			labels[index].delete :index
 			negative
 		end.freeze
+
+		begin item = lang_sheet.shift end until item[:index] == '#' && item[:tw] == 15
+		DIFFS_SP_IN_GAME = (
+			dIFFS_SP_IN_GAME +
+			(15..16).map { |i| [i, lang_sheet[i-15].transform_values(&:to_s)] }
+		).to_h.freeze
+		DIFFS_SP_IN_GAME.each_value { _1.delete :index }
 
 		ALIASES = YAML.load_file(File.join Lyricat::DATA_DIR, ENV['LYRICAT_ALIASES'] || 'aliases.yml')['songs']
 		ALIASES.merge! ALIASES.transform_keys { Ropencc.conv 's2t', _1 }
