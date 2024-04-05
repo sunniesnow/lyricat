@@ -681,7 +681,7 @@ module Lyricat
 						s.concat "- #{song.name lang}\t#{Song.diff_name_in_game diff_id, lang}\n"
 					end
 					unless middle_result.empty?
-						middle_result = "**#{Song.diff_in_game_and_abbr_precise diff, lang}**\n" + middle_result
+						middle_result = "**#{Song.diff_in_game_and_abbr_precise diff, lang, special: nil}**\n" + middle_result
 						if result.length + middle_result.length + link.length + 1 > 2000
 							if event.channel.pm?
 								try_reply event.message, result
