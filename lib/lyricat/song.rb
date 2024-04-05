@@ -155,7 +155,11 @@ module Lyricat
 			attr_accessor :max_version
 
 			def diff_in_game_and_abbr_precise diff, lang = LANGS.first, special: false
-				in_game = (special ? DIFFS_SP_IN_GAME : DIFFS_IN_GAME)[diff.to_i][lang]
+				if special.nil?
+					in_game = [DIFFS_IN_GAME[diff.to_i], DIFFS_SP_IN_GAME[diff.to_i]].compact.map { _1[lang] }.join '/'
+				else
+					in_game = (special ? DIFFS_SP_IN_GAME : DIFFS_IN_GAME)[diff.to_i][lang]
+				end
 				in_game += DIFF_PLUS[lang] if diff % 1 > 0.5
 				"#{in_game}(.#{(diff % 1 * 10).round})"
 			end
