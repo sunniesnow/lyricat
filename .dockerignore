@@ -1,4 +1,5 @@
 .git
+.github
 res
 .env
 data
@@ -6,3 +7,4 @@ docker-compose.yml
 docker-compose.yml.example
 Rakefile
 shell.nix
+copy-res.sh

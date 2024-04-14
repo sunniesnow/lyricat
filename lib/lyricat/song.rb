@@ -296,15 +296,21 @@ module Lyricat
 				filtered_lib = LIB.reject { excluded.include? _2.song_id }
 				[lang, nil].each do |l|
 					match = ->meth, strong = false do
-						filtered_lib.find do |song_id, song|
-							next true if query_forms.any? { song.__send__ meth, _1, strong, l }
-							if alter_forms&.any? { song.__send__ meth, _1, strong, l }
-								searched.add song_id
-								next true if n == searched.size
-							end
-						end&.first
+						query_forms.zip alter_forms.to_a do |form, alter_form|
+							found = filtered_lib.find do |song_id, song|
+								song.__send__ meth, form, strong, l
+							end&.first
+							found ||= filtered_lib.find do |song_id, song|
+								if song.__send__(meth, alter_form, strong, l)
+									searched.add song_id
+									next true if n == searched.size
+								end
+							end&.first if alter_form
+							return found if found
+						end
+						nil
 					end
-					o = match.(:match_name, true) || match.(:match_roman1, true) || match.(:match_roman2, true) || match.(:match_roman1) || match.(:match_roman2) || match.(:match_name)
+					o = match.(:match_name, true) || match.(:match_name) || match.(:match_roman1, true) || match.(:match_roman2, true) || match.(:match_roman1) || match.(:match_roman2)
 					return o if o
 				end
 				nil
