@@ -10,7 +10,6 @@ module Lyricat
 		if DB.execute('select name from sqlite_master where type="table" and name="user"').empty?
 			DB.execute 'create table user (id bigint primary key, session_token varchar(50), expiration bigint, lang varchar(10), song_aliases text)'
 		end
-		DB.type_translation = true
 
 		class << self
 			def ensure_user id
@@ -111,7 +110,7 @@ module Lyricat
 
 		TOKEN = ENV['LYRICAT_DISCORD_TOKEN'].freeze
 		PREFIX = CONFIG[:prefix].freeze
-		BOT = new token: TOKEN, prefix: PREFIX, help_command: false
+		BOT = new token: TOKEN, prefix: PREFIX, help_command: false, intents: %i[server_messages direct_messages]
 		BOT.instance_eval do
 
 			command :help, max_args: 1, description: 'Shows a list of all the commands available or displays help for a specific command.', usage: 'help [command name]' do |event, command_name|
