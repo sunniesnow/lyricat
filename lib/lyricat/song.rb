@@ -197,6 +197,7 @@ module Lyricat
 				threads_mutex = Thread::Mutex.new
 				unnecessary = Concurrent::Set.new
 				currently_wanted = nil
+				bad_upstream = false
 				production = Thread.new do
 					managing_queue = Thread::Queue.new
 					schedule = Concurrent::Array[*sorted.each_with_index]
@@ -214,6 +215,15 @@ module Lyricat
 							rescue Net::OpenTimeout
 								puts "Timeout when querying #{i}, #{song_id}, #{diff_id}"
 								score = 0
+							rescue HeavyLifting::BadUpstreamResponse => e
+								unless bad_upstream
+									bad_upstream = e
+									puts "Bad upstream response when querying #{i}, #{song_id}, #{diff_id}"
+									production.kill
+									queue.close
+									Thread.new { threads.each_value &:kill }
+									thread.exit
+								end
 							end
 
 							mr = LIB[song_id].mr_by_score diff_id, score
@@ -222,7 +232,6 @@ module Lyricat
 							# puts "FEEDING #{i}"
 							managing_queue.push i
 						end
-						thread.abort_on_exception = true
 						threads_mutex.synchronize { threads[i] = thread }
 					end
 					create_thread.() until threads.size == THREADS || schedule.empty?
@@ -259,6 +268,7 @@ module Lyricat
 						end
 					end if picked.size >= n
 				end
+				raise bad_upstream if bad_upstream
 				picked.take(n).map do |song_id, i|
 					song_id, diff = sorted[i]
 					score, mr = records[i]
