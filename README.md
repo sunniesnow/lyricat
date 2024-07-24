@@ -29,6 +29,7 @@ or copy the useful files to the paths specified in `config.yml`.
 | `LYRICAT_STATIC_SESSION_TOKEN` | (Required) The session token used to retrieve leaderboards. |
 | `LYRICAT_DISCORD_TOKEN` | (Required) The Discord bot token. |
 | `LYRICAT_DISCORD_MAINTAINER_ID` | The Discord user ID of the maintainer. |
+| `LYRICAT_SKIP_COMMAND_REGISTRATION` | Skip command registration. Command registration is necessary for a new bot or when there is command update, but it makes startup very slow. Defaults to false. |
 
 ## Docker deploy
 

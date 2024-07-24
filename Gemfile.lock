@@ -32,7 +32,7 @@ GEM
     ropencc (0.0.6)
       ffi (~> 1.0)
     sqlite3 (2.0.2-x86_64-linux-gnu)
-    websocket (1.2.10)
+    websocket (1.2.11)
     websocket-client-simple (0.8.0)
       event_emitter
       websocket
@@ -49,4 +49,4 @@ DEPENDENCIES
   sqlite3
 
 BUNDLED WITH
-   2.5.14
+   2.5.16
