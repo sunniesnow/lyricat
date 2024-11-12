@@ -56,5 +56,4 @@ Simply copy over `data.db` in the `data` dir (specified in the volume mapping in
 
 ## License
 
-This is **not** free software.
-See LICENSE for details.
+AGPL-3.0-only.
