@@ -44,10 +44,10 @@ module Lyricat
 		def get_user session_token
 			net = make_net
 			response = request net, make_get_request('/parse/sessions/me', session_token)
-			raise BadUpstreamResponse unless response.code == '200'
+			raise BadUpstreamResponse, "Response code is #{response.code} instead of 200" unless response.code == '200'
 			me = JSON.parse response.body, symbolize_names: true
 
-			raise BadUpstreamResponse unless me[:user].is_a? Hash
+			raise BadUpstreamResponse, "The `user` field of the JSON is not a Hash but a #{me[:user].class}" unless me[:user].is_a? Hash
 			class_name, object_id = me[:user].values_at :className, :objectId
 			response = request net, make_get_request("/parse/classes/#{class_name}/#{object_id}", session_token)
 			hash = JSON.parse response.body, symbolize_names: true
@@ -61,9 +61,9 @@ module Lyricat
 		def process_leaderboard result
 			columns = result.split ?$
 			columns.shift
-			raise BadUpstreamResponse unless columns.size == 5
+			raise BadUpstreamResponse, "The leaderboard has #{columns.size} instead of 5 columns" unless columns.size == 5
 			scores, nicknames, heads = columns[0..2].map { _1.split ?' }
-			raise BadUpstreamResponse unless scores.size == nicknames.size && nicknames.size == heads.size
+			raise BadUpstreamResponse, "The leaderboard format is wrong because there are #{scores.size} scores, #{nicknames.size} nicknames, and #{heads.size} heads" unless scores.size == nicknames.size && nicknames.size == heads.size
 			scores.map! &:to_i
 			heads.map! &:to_i
 			scores.zip(nicknames, heads).each_with_index.map { |(score, nickname, head), i| {score:, nickname:, head:, rank: i+1} }
@@ -72,20 +72,20 @@ module Lyricat
 		def get_leaderboard session_token, song_id, diff_id
 			net = make_net
 			response = request net, make_post_request('/parse/functions/AskLeaderBoardNew', session_token, diff: diff_id, score: 0, songId: song_id)
-			raise BadUpstreamResponse unless response.code == '200'
+			raise BadUpstreamResponse, "The response code is #{response.code} instead of 200" unless response.code == '200'
 
 			body = JSON.parse response.body, symbolize_names: true
-			raise BadUpstreamResponse unless body[:result].is_a? String
+			raise BadUpstreamResponse, "The `result` field of the JSON is not a String but a #{body[:result].class}" unless body[:result].is_a? String
 			process_leaderboard body[:result]
 		end
 
 		def get_my_leaderboard session_token, song_id, diff_id
 			net = make_net
 			response = request net, make_post_request('/parse/functions/AskMyLeaderBoard', session_token, diff: diff_id, score: 0, songId: song_id)
-			raise BadUpstreamResponse unless response.code == '200'
+			raise BadUpstreamResponse, "The response code is #{response.code} instead of 200" unless response.code == '200'
 
 			body = JSON.parse response.body, symbolize_names: true
-			raise BadUpstreamResponse unless body[:result].is_a? String
+			raise BadUpstreamResponse, "The `result` field of the JSON is not a String but a #{body[:result].class}" unless body[:result].is_a? String
 			zero, score, rank, diff_id, song_id, extra = body[:result].split ','
 			{score: score.to_i, rank: rank.to_i, diff_id: diff_id.to_i, song_id: song_id.to_i}
 		end
@@ -93,20 +93,20 @@ module Lyricat
 		def get_month_leaderboard session_token, song_id, diff_id
 			net = make_net
 			response = request net, make_post_request('/parse/functions/AskMonthLeaderBoardNew', session_token, diff: diff_id, score: 0, songId: song_id)
-			raise BadUpstreamResponse unless response.code == '200'
+			raise BadUpstreamResponse, "The response code is #{response.code} instead of 200" unless response.code == '200'
 
 			body = JSON.parse response.body, symbolize_names: true
-			raise BadUpstreamResponse unless body[:result].is_a? String
+			raise BadUpstreamResponse, "The `result` field of the JSON is not a String but a #{body[:result].class}" unless body[:result].is_a? String
 			process_leaderboard body[:result]
 		end
 
 		def get_my_month_leaderboard session_token, song_id, diff_id
 			net = make_net
 			response = request net, make_post_request('/parse/functions/AskMyMonthLeaderBoard', session_token, diff: diff_id, score: 0, songId: song_id)
-			raise BadUpstreamResponse unless response.code == '200'
+			raise BadUpstreamResponse, "The response code is #{response.code} instead of 200" unless response.code == '200'
 
 			body = JSON.parse response.body, symbolize_names: true
-			raise BadUpstreamResponse unless body[:result].is_a? String
+			raise BadUpstreamResponse, "The `result` field of the JSON is not a String but a #{body[:result].class}" unless body[:result].is_a? String
 			zero, score, rank, diff_id, song_id, extra = body[:result].split ','
 			{score: score.to_i, rank: rank.to_i, diff_id: diff_id.to_i, song_id: song_id.to_i}
 		end
@@ -114,14 +114,14 @@ module Lyricat
 		def get_expiration_date session_token
 			net = make_net
 			response = request net, make_get_request('/parse/sessions/me', session_token)
-			raise BadUpstreamResponse unless response.code == '200'
+			raise BadUpstreamResponse, "The response code is #{response.code} instead of 200" unless response.code == '200'
 			me = JSON.parse response.body, symbolize_names: true
 			iso = me[:expiresAt]&.[] :iso
-			raise BadUpstreamResponse unless iso
+			raise BadUpstreamResponse, "The JSON does not have `expiresAt.iso` field" unless iso
 			begin
 				return DateTime.parse iso
 			rescue Date::Error
-				raise BadUpstreamResponse
+				raise BadUpstreamResponse, "Bad date format: #{iso}"
 			end
 		end
 	end

@@ -495,7 +495,8 @@ module Lyricat
 				next '*No such chart.*' unless song&.diff[diff_id]
 				begin
 					leaderboard = HeavyLifting.get_leaderboard SESSION_TOKEN, song_id, diff_id
-				rescue HeavyLifting::BadUpstreamResponse
+				rescue HeavyLifting::BadUpstreamResponse => e
+					STDERR.puts e.full_message
 					next "*There is a problem in retrieving the leaderboard. Please contact <@#{MAINTAINER_ID}>.*"
 				end
 				text = leaderboard.map do |hash|
@@ -521,7 +522,8 @@ module Lyricat
 				next '*No such chart.*' unless song&.diff[diff_id]
 				begin
 					leaderboard = HeavyLifting.get_month_leaderboard SESSION_TOKEN, song_id, diff_id
-				rescue HeavyLifting::BadUpstreamResponse
+				rescue HeavyLifting::BadUpstreamResponse => e
+					STDERR.puts e.full_message
 					next "*There is a problem in retrieving the leaderboard. Please contact <@#{MAINTAINER_ID}>.*"
 				end
 				text = leaderboard.map do |hash|
