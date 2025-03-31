@@ -360,38 +360,20 @@ module Lyricat
 		SORTED_NEW = get_sorted(&:new?).freeze
 		THREADS = ENV['LYRICAT_THREADS_COUNT']&.to_i || 8
 
-		lang_sheet = Lyricat.sheet :language
-		begin item = lang_sheet.shift end until item[:index] == '#' && item[:tw] == 1
-		DIFFS_IN_GAME = (
-			(1..10).map { |i| [i, lang_sheet[i-1].transform_values(&:to_s)] } +
-			(11..15).map { |i| [i, lang_sheet[i+43].transform_values(&:to_s)] }
-		).to_h.freeze
-		DIFFS_IN_GAME.each_value { _1.delete :index }
-		DIFF_PLUS = lang_sheet[59].tap { _1.delete :index }.freeze
-		DIFFS_NAME = ((1..4).map { |i| [i, lang_sheet[i+9]] } + [[5, lang_sheet[53]]]).to_h.freeze
-		DIFFS_NAME.each_value { _1.delete :index }
-
-		dIFFS_SP_IN_GAME = (
-			(1..10).map { |i| [i, lang_sheet[i-1].transform_values(&:to_s)] } +
-			(11..14).map { |i| [i, lang_sheet[i+43].transform_values(&:to_s)] }
-		)
-
-		begin item = lang_sheet.shift end until item[:index] == '#' && item[:tw] == 9
-		LABELS = lang_sheet.each_with_object({}).reduce false do |negative, (item, labels)|
-			negative ? (break labels) : (next true) if item[:index] == '#'
-			index = item[:index]
-			index = negative ? index > 5 ? -4 - index : -1 - index : index
-			labels[index] = item
-			labels[index].delete :index
-			negative
-		end.freeze
-
-		begin item = lang_sheet.shift end until item[:index] == '#' && item[:tw] == 15
+		lang_sheet = Lyricat.sheet(:language).each_with_object [] do |item, lib|
+			item[:index] == ?# ? lib[item[:tw]] = [] : lib.last[item[:index]] = item.except(:index).transform_values(&:to_s).freeze
+		end
+		DIFFS_IN_GAME = (1..15).map { |i| [i, lang_sheet[1][i<=10 ? i-1 : i+43]] }.to_h.freeze
 		DIFFS_SP_IN_GAME = (
-			dIFFS_SP_IN_GAME +
-			(15..16).map { |i| [i, lang_sheet[i-15].transform_values(&:to_s)] }
+			(1..14).map { |i| [i, lang_sheet[1][i<=10 ? i-1 : i+43]] } +
+			lang_sheet[15].map.with_index { |item, i| [i+15, item] }
 		).to_h.freeze
-		DIFFS_SP_IN_GAME.each_value { _1.delete :index }
+		DIFF_PLUS = lang_sheet[1][59]
+		DIFFS_NAME = (1..5).map { |i| [i, lang_sheet[1][i<5 ? i+9 : 53]] }.to_h.freeze
+		LABELS = (
+			lang_sheet[9].map.with_index { |item, i| [i, item] } +
+			lang_sheet[10].map.with_index { |item, i| [i>5 ? -4-i : -1-i, item] }
+		).to_h.freeze
 
 		ALIASES = YAML.load_file(File.join Lyricat::DATA_DIR, ENV['LYRICAT_ALIASES'] || 'aliases.yml')['songs']
 		ALIASES.merge! ALIASES.transform_keys { Ropencc.conv 's2t', _1 }
