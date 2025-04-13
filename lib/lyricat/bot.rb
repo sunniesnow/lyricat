@@ -605,7 +605,7 @@ module Lyricat
 				Does not support fuzzy search.
 			DESC
 			arguments = [{name: 'song_id', type: :integer, description: 'The song ID.', required: true}]
-			gen_multilingual_command :anal, aliases: %i[analysis lyricsinfo], description:, arguments: do |event, lang, song_id:|
+			gen_multilingual_command :analysis, aliases: %i[lyricsinfo], description:, arguments: do |event, lang, song_id:|
 				song = Song::LIB[song_id]
 				next '*No such song.*' unless song
 				result = song.lyrics_info lang
