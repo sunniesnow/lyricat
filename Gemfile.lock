@@ -14,7 +14,7 @@ GEM
       rest-client (>= 2.0.0)
     domain_name (0.6.20240107)
     event_emitter (0.2.6)
-    ffi (1.17.1-x86_64-linux-gnu)
+    ffi (1.17.2-x86_64-linux-gnu)
     http-accept (1.7.0)
     http-cookie (1.0.8)
       domain_name (~> 0.5)
@@ -22,7 +22,7 @@ GEM
     mime-types (3.6.2)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0325)
+    mime-types-data (3.2025.0415)
     mutex_m (0.3.0)
     netrc (0.11.0)
     opus-ruby (1.0.1)
@@ -55,4 +55,4 @@ DEPENDENCIES
   sqlite3
 
 BUNDLED WITH
-   2.6.6
+   2.6.8

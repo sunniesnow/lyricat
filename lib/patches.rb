@@ -22,3 +22,21 @@ class String
 		chars.filter { _1 =~ /[A-Z]/ }.join.downcase
 	end
 end
+
+class Integer
+	def like_int?
+		true
+	end
+	def like_float?
+		false
+	end
+end
+
+class Float
+	def like_int?
+		false
+	end
+	def like_float?
+		true
+	end
+end

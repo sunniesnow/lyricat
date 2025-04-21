@@ -299,7 +299,7 @@ module Lyricat
 				(or `[n,m+0.9]` if `m` does not have decimal point).
 			DESC
 			arguments = [
-				{name: 'n', type: :number, description: 'The difficulty or its lower bound.', required: true},
+				{name: 'n', type: :number, description: 'The difficulty or its lower bound.', required: false},
 				{name: 'm', type: :number, description: 'The upper bound of the difficulty.', required: false}
 			]
 			gen_multilingual_command :rand, aliases: %i[random], description:, arguments: do |event, lang, n:, m: nil|
