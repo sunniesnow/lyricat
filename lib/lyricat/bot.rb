@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class Discordrb::Commands::Command
 	def initialize name, attributes = {}, &block
 		@name = name

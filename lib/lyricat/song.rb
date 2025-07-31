@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Lyricat
 	class Song
 		FIELDS = %i[song_id name singer writer diff label origin update_version year lyrics].freeze

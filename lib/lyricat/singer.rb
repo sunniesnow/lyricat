@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Lyricat
 	class Singer
 		attr_reader :index, :weblink, :fblink, :etclink, :songs
