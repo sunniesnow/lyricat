@@ -149,7 +149,7 @@ module Lyricat
 		end
 
 		TOKEN = ENV['LYRICAT_DISCORD_TOKEN'].freeze
-		BOT = new token: TOKEN, intents: :none
+		BOT = new token: TOKEN, intents: :none, fancy_log: true, log_mode: :debug
 		BOT.instance_eval do
 
 			description = 'Shows a list of all the commands available or displays help for a specific command.'
