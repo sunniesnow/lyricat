@@ -12,4 +12,4 @@ RUN bundle install
 ENV LYRICAT_DATA_DIR=/data
 ENV LYRICAT_RES_DIR=/res
 
-ENTRYPOINT [ "/app/main.rb" ]
+ENTRYPOINT [ "bundle", "exec", "main.rb" ]
