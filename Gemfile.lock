@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/UlyssesZh/discordrb.git
-  revision: fb8d79736b69c4bd47a71694707d92183cd8904a
+  revision: 684c1133191224c19438116508c8c7f90ce075d3
   branch: timeout
   specs:
     discordrb (3.5.0)
