@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }: with pkgs; mkShell {
 	packages = [
 		opencc
-		ruby_3_4
+		ruby_4_0
 	];
 	shellHook = ''
 		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${lib.makeLibraryPath [

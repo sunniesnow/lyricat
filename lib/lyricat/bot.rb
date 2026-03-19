@@ -490,7 +490,7 @@ module Lyricat
 			]
 			gen_multilingual_command :leaderboard, aliases: %i[lb], description:, arguments:, deferred: true do |event, lang, song_id:, diff_id:|
 				song = Song::LIB[song_id]
-				next '*No such chart.*' unless song&.diff[diff_id]
+				next '*No such chart.*' unless song&.diff&.[] diff_id
 				begin
 					leaderboard = HeavyLifting.get_leaderboard SESSION_TOKEN, song_id, diff_id
 				rescue HeavyLifting::BadUpstreamResponse => e
@@ -517,7 +517,7 @@ module Lyricat
 			]
 			gen_multilingual_command :monthleaderboard, aliases: %i[mlb], description:, arguments:, deferred: true do |event, lang, song_id:, diff_id:|
 				song = Song::LIB[song_id]
-				next '*No such chart.*' unless song&.diff[diff_id]
+				next '*No such chart.*' unless song&.diff&.[] diff_id
 				begin
 					leaderboard = HeavyLifting.get_month_leaderboard SESSION_TOKEN, song_id, diff_id
 				rescue HeavyLifting::BadUpstreamResponse => e
